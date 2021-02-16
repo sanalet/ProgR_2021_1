@@ -36,13 +36,40 @@ La función `as._____()` permite crear datos de un tipo particular. Por ejemplo 
 Ahora creen un objeto tipo integer e imprímalo en la consola. Use la función `is.integer( )` para verificar el tipo de datos:
 
 ```{r}
+x <- 35
+class(x)
+is.numeric(x)
+is.character(x)
+is.integer(x)
+is.integer(35)
+i <- 35L
+is.integer(i)
+class(i)
+
+y <- "1985"
+class(y)
+is.numeric(y)
+is.character(y)
+
+y2 <- as.numeric(y)
+class(y2)
+is.numeric(y2)
+is.integer(y2)
 
 ```
+
+Control + Alt + I para un bloque de código. 
+Alt + - para el símbolo de asignación.
+Control + enter para ejecutar o correr una línea de código. 
+
+
+
 
 Pruebe qué sucede al usar las funciones `class( )` y `is.numeric( )` en este objeto. ¿Qué clase de objeto muestran estas dos clases?
 
 ```{r}
 class(i)
+is.integer(i)
 is.numeric(i)
 ```
 
@@ -55,13 +82,24 @@ class(j * i)
 Cree un objeto llamado `mi_nombre` con su nombre y use las funciones `class( )` y `is.character( )` para verificar el tipo de datos.
 
 ```{r}
-
+mi_nombre <- "Santiago Tellez"
+class(mi_nombre)
+is.character(mi_nombre)
+is.numeric(mi_nombre)
 ```
 ¿Qué función de R le podría servir para saber el número de caracteres que tiene el objeto mi_nombre?
 
 ```{r}
-
+length(mi_nombre)
+nchar(mi_nombre)
 ```
+
+```{r}
+nombres <- c("Santiago", "Diana", "Juan")
+length(nombres)
+nchar(nombres)
+```
+
 
 ## Fechas y tiempos: 
 
@@ -81,22 +119,43 @@ as.numeric(birthday)
 anterior <- as.Date("1969-1-1")
 as.numeric(anterior)
 ```
-- Use una combinación de las funciones anteriores para estimar cuántos días han pasado desde la fecha de su cumpleaños y el día de hoy.
+```{r}
+semana <- as.Date("2021-02-09")
+semana_mal <- as.Date("2021-09-02")
+as.numeric(semana)
+as.numeric(semana_mal)
+```
+
+
+- Use una combinación de las funciones anteriores para estimar cuántos días han pasado desde la fecha de su nacimiento y el día de hoy.
 
 ```{r}
+hoy <- as.Date("2021-02-16")
 
+hoy - birthday
 ```
 
 Cree un objeto que incluya su fecha y hora de nacimiento, así:
 
 ```{r}
 birth_time <- as.POSIXct("1985-04-23 14:00")
+class(birth_time)
+birth_time
 ```
 
 Calcule el número de segundos que han transcurrido entre el día de su nacimiento y enero 1 de 1970.
 
 ```{r}
+as.numeric(birth_time)
+```
 
+
+
+```{r}
+Sys.time()
+ahora <- Sys.time()
+class(ahora)
+ahora - birth_time
 ```
 
 ### Manejo de fechas con el paquete lubridate
@@ -108,8 +167,9 @@ Por ejemplo, con este paquete se pueden crear fechas que vengan en cualquier ord
 ```{r}
 library(lubridate)
 fecha <- mdy("07-30-2020")
-ayer <- dym("13/2020/08")
+ayer <- dym("15/2021/02")
 class(fecha)
+class(ayer)
 ```
 
 ## Vectores
@@ -126,6 +186,10 @@ w <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 w
 w <- 1:10
 w
+w <- seq(from = 1, to = 10, by = 1)
+w
+z <- seq(from = 0.5, to = 5.5, by = 0.5 )
+z
 ```
 
 Y este vector:
@@ -140,6 +204,8 @@ class(z)
 
 ```{r}
 a <- c("Juan", 1, "Daniela", 2)
+a
+class(a)
 ```
 
 ¿Qué pasa si lo intentan forzar a que sea numérico?
@@ -275,16 +341,28 @@ as.numeric(is.na(faltantes))
 sum(as.numeric(is.na(faltantes)))
 sum(is.na(faltantes))
 ```
+```{r}
+sum(!is.na(faltantes))
+```
+
 
 ## Explorar el contenido de los vectores
 
 En el caso del vector x, si quiero ver solamente un elemento del vector uso [ ]:
+
+```{r}
+caras <- 1:6
+caras
+sample(caras, 1)
+```
+
+
 ```{r}
 # La función sample  permite tomar muestras aleatorias de un conjunto de datos:
 y <- sample(x = 1:10000, size = 1000)
+
 length(y)
-y
-print(y)
+
 # Por ejemplo, si quiero ver el tercer elemento del
 # vector :
 y[3]
@@ -309,7 +387,7 @@ Uso de la función sample para replicar el lanzamiento de dos dados de seis cara
 sample(x = 1:6, size = 2, replace = TRUE)
 ```
 
-## Factores
+## Factores 
 
 Un factor es un vector o un conjunto de datos que tiene categorías que se repiten (i.e. info de una variable categórica). Para crear un factor, o transformar un vector normal a un factor se usa la función *as.factor( )*. Por ejemplo, creen el siguiente factor:
 
