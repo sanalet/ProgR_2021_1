@@ -1,0 +1,289 @@
+---
+title: "Funciones, loops y condicionales"
+author: "Santiago Tellez Cañas"
+output: 
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Activar paquete
+
+```{r}
+library(tidyverse)
+library(readxl)
+
+```
+
+
+# Funciones
+
+* En R se pueden crear funciones para hacer diferentes tareas.
+* Crear funciones es útil cuando se debe hacer una tarea que se repite para varios objetos o variables.
+* Crear funciones evita copiar y pegar código.
+* Para crear funciones se debe usar `function()`.
+* Las funciones se deben asignar a un objeto.
+* La estructura de cualquier función es la siguiente:
+
+```{r, eval=FALSE}
+nombre <- function(argumentos){
+
+  OPERACIONES A EJECUTAR
+
+}
+```
+
+Por ejemplo, creemos la función diga.hola:
+
+```{r}
+diga.hola <- function(){
+
+  paste("Hello, World!")
+
+}
+
+diga.hola()
+```
+
+
+Escribamos una función que tome un número o un vector y lo eleve al cuadrado. El único argumento en este caso, sería el número o vector:
+
+```{r}
+cuadrado <- function(x){
+  x ^ 2
+}
+```
+
+
+Use la función:
+
+```{r}
+
+```
+
+- Creen una función para calcular cualquier potencia. Prueben que la función opera correctamente.
+
+```{r}
+potencia <- function(){
+  
+}
+```
+
+- ¿Cómo podría modificarse la función para que el exponente sea 2 si no se ingresa ningún valor?
+
+```{r}
+potencia <- function(){
+  
+}
+
+```
+
+## Graficar una función
+
+https://ggplot2.tidyverse.org/reference/geom_function.html
+
+```{r}
+ggplot() + xlim(-5, 5) + 
+  geom_function(fun = cuadrado)
+
+```
+
+Grafiquen la función potencia:
+
+```{r}
+
+```
+
+
+## Función para convertir grados centígrados a farenheit:
+
+La conversión de grados centígrados a farenheit se hace usando la siguiente fórmula: $$F = C*\dfrac{9}{5} + 32$$. Cree una función que permita hacer la conversión para cualquier temperatura en grados centígrados.
+
+```{r}
+transformacion <- function(){
+  
+}
+```
+
+Revise la ayuda de la función *paste*:
+
+* ¿Qué hace esta función?
+* ¿Cuáles son los argumentos de la función?
+
+```{r}
+
+```
+Usando la función *paste*, modifique la función que acaba de crear para que incluya la siguiente expresión como resultado de la función:
+
+* *"X grados centígrados, son Y grados farenheit"*
+* Por ejemplo, para el caso de 0 grados centígrados, la función debe arrojar como resultado la siguiente expresión: *"0 grados centígrados, son 32 grados farenheit"*
+
+```{r}
+
+```
+
+Por defecto, las funciones retornan del valor correspondiente a la última línea de código dentro de la función. Por ejemplo, al ejecutar la siguiente función solamente se muestra el resultado de la última fila:
+
+```{r}
+suma1 <- function(x,y){
+  a <- x
+  b <- y
+  a * b
+  a + b
+}
+
+suma1(5, 4)
+```
+Una mejor práctica es usar la función *return* para indicar de manera explícita qué es lo que la función debe mostrar
+```{r}
+suma2 <- function(x,y){
+  a <- x
+  b <- y
+  a * b
+  return(a + b)
+}
+suma2(5,4)
+```
+
+Si se utiliza `return`, cualquier cosa que esté después es ignorada.
+
+```{r}
+suma3 <- function(x,y){
+  a <- x
+  b <- y
+  return(a * b)
+  a + b
+}
+suma3(5, 4)
+```
+- Creen una función que permita calcular el coeficiente de variación de un conjunto de datos.
+
+```{r}
+cv <- function(){
+  
+}
+
+```
+
+- Una vez la haya creado, aplique esa función la variable de PIB per capita de la base gapminder.
+
+```{r}
+
+```
+
+
+# Estructuras de control
+
+Las estructuras de control permiten controlar el flujo de la programación y hacer que pasen distintas cosas, dependiendo el resultado de una prueba lógica. El resultado de las pruebas son: TRUE o FALSE. Las principales estructuras de control son **if**, **else** e **ifelse**.
+
+## if
+
+La estructura más común es el comando **if**. La estructura de esta prueba es sencilla:
+
+1. Pruebe una relación. Esta relación se escribe entre paréntesis al lado del comando **if**.
+2. Si es verdad (i.e. TRUE) ejecute una acción. Esta acción se escribe entre corchetes después de los paréntesis.
+3. Si no es verdad (i.e. FALSE) no ejecute la acción.
+
+Las pruebas usadas son, entre otras:
+
+* Igual que: `==`
+* Menor que: `<`
+* Menor o igual que: `<=`
+* Mayor que: `>`
+* Mayor o igual que: `>=`
+* No igual que: `!=`
+
+Otras pruebas son:
+
+- is.numeric(), etc. 
+- is.na()
+
+#### if
+
+Ejemplo:
+
+1. Cree un objeto que se llame x, y asigne el valor de 5 a ese objeto
+2. Pruebe si x es mayor a 0.
+3. Si la prueba es verdad, escriba "Positivo".
+4. Si no es verdad, no haga nada.
+
+```{r}
+x <- 5
+if (x > 0) {
+  print("positivo")
+}
+```
+
+Repita el ejercicio con x = -2.
+
+```{r}
+
+```
+
+#### if y else
+
+El comando **else** permite ejecutar otra acción en caso que la prueba no sea verdad.
+
+Ejemplo:
+
+1. Cree un objeto que se llame x, y asigne el valor -3
+2. Pruebe si x es mayor a 0.
+3. Si la prueba es verdad, escriba "Positivo".
+4. Si no es verdad, escriba "Negativo".
+
+```{r}
+x <- 0
+if(x > 0){
+  print("positivo")
+} else {
+  print("negativo")
+  }
+```
+
+Usando los comandos **if** y **else**, cree una **función** que tome un número y realice lo siguiente:
+
+* Si el número es mayor a cero, escriba "positivo".
+* Si es menor a cero, escriba "negativo".
+* Si es igual a cero, escriba "El número es 0"
+
+```{r}
+
+```
+
+Usando los comandos **if** y **else**, cree una función que tome un número y realice lo siguiente:
+
+* Si el número es menor o igual a 10, eleve el número al cuadrado.
+* Si el número es mayor a 10, multiplique el número por 2.
+
+Pruebe que la función opera correctamente con los números 5, 10 y 20.
+
+```{r}
+
+```
+
+Use alguno de los condicionales vistos para resolver los siguientes ejercicios:
+
+1. Cree una función que estime el valor absoluto de un número, e imprima la siguiente expresión: "El valor absoluto de x es ___". No use la función `abs`.
+
+```{r}
+
+```
+
+2. Cree una función que calcule la raíz cuadrada de un número. La función debe imprimir la expresión "La raíz cuadrada de x es __". Si el número es negativo, el resultado debe ser NA.
+
+```{r}
+
+```
+
+
+3. Cree una función que tome dos objetos, *x* y *y*, y realice lo siguiente:
+
+    * Verifique si *x* es un número.
+    * Verifique si *y* es un número y si es distinto a 0.
+    * Si se cumplen las anteriores condiciones, divida *x* por *y*.
+    * Si no se cumplen, el resultado debe ser la siguiente expresión "Uno de los dos objetos no es un número".
+    
+```{r}
+
+```
+
