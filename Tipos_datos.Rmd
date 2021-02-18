@@ -455,6 +455,8 @@ Las funciones `nrow`, `ncol` y `dim` sirven para explorar las dimensiones de la 
 
 ```{r}
 nrow(A)
+ncol(A)
+dim(A)
 ```
 
 
@@ -512,8 +514,9 @@ El producto de una matriz cuadrada y su inversa es la matriz identidad.
 A
 
 C <- rep(1, 5)
-
+C
 A_grande <- cbind(A, C)
+A_grande
 A <- cbind(C, A)
 A
 
@@ -584,7 +587,9 @@ gapminder2
 - **Modifiquen la función head() para que muestre las primeras 15 filas**
 
 ```{r}
-
+names(gapminder)
+head(gapminder, n = 15)
+tail(gapminder, n = 20)
 ```
 ### Acceder a las columnas de un data.frame:
 
