@@ -382,11 +382,6 @@ completos
 ```
 **El signo `!` permite hacer negaciones en R**
 
-Uso de la función sample para replicar el lanzamiento de dos dados de seis caras:
-```{r}
-sample(x = 1:6, size = 2, replace = TRUE)
-```
-
 ## Factores 
 
 Un factor es un vector o un conjunto de datos que tiene categorías que se repiten (i.e. info de una variable categórica). Para crear un factor, o transformar un vector normal a un factor se usa la función *as.factor( )*. Por ejemplo, creen el siguiente factor:
@@ -441,6 +436,7 @@ Usen `table()` y `prop.table()` para ver un resumen de este vector.
 table(nivel_educativo)
 prop.table(table(nivel_educativo))
 ```
+
 ## Matrices
 
 Para crear una matriz se usa la función `matrix`. Por ejemplo, la siguiente función crea una matriz de 5 x 2:
@@ -526,22 +522,6 @@ B <- rbind(B, c(0, 0))
 B
 ```
 
-```{r}
-A <- matrix(1:10, ncol = 2)
-C <- rep(1, 5)
-A_grande <- cbind(A, C)
-A_grande
-A_grande2 <- cbind(C, A[ , 2], A[ ,1])
-A_grande2 <- cbind(A[ , 2], C, A[ ,1])
-A_grande2
-colnames(A_grande2)
-colnames(A_grande2) <- c("C", "A1", "A2")
-A_grande2
-
-lm(A1 ~ A2, data = A_grande2)
-```
-
-
 ## Conjuntos de datos: `data.frame` y `tibble`
 
 ### `data.frame`:
@@ -626,13 +606,13 @@ gapminder$lifeExp
 
 ```{r}
 class(gapminder$continent)
-class(gapminder$gdpPercap)
 ```
 ¿Cuál es el promedio de la variable `lifeExp`?
 
 ```{r}
 mean(gapminder$lifeExp)
 ```
+
 2. Usando `[x,y]`: En este caso, el primer numero corresponde al número de la fila y el segundo al de la columna. Para ver una columna completa dejamos vacío el primer número y ponemos el número de la columna. 
 
 ```{r}
@@ -642,7 +622,6 @@ gapminder[,2]
 Para ver una secuencia de columnas:
 ```{r}
 base <- gapminder[ ,2:4]
-
 ```
 Para ver columnas que no están seguidas:
 ```{r}
