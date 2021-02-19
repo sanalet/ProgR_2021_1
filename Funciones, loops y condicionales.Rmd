@@ -15,6 +15,10 @@ library(readxl)
 
 ```
 
+```{r}
+rm(list = ls())
+```
+
 
 # Funciones
 
@@ -45,6 +49,15 @@ diga.hola <- function(){
 diga.hola()
 ```
 
+```{r}
+paste("Santiago", "Tellez")
+diga.hola.per <- function(nombre){
+  paste("Hola", nombre)
+}
+diga.hola.per("Santiago")
+```
+
+
 
 Escribamos una función que tome un número o un vector y lo eleve al cuadrado. El único argumento en este caso, sería el número o vector:
 
@@ -58,24 +71,26 @@ cuadrado <- function(x){
 Use la función:
 
 ```{r}
-
+cuadrado(10)
 ```
 
 - Creen una función para calcular cualquier potencia. Prueben que la función opera correctamente.
 
 ```{r}
-potencia <- function(){
-  
+potencia <- function(a,b){
+  a^b
 }
+potencia(10, 2)
 ```
 
 - ¿Cómo podría modificarse la función para que el exponente sea 2 si no se ingresa ningún valor?
 
 ```{r}
-potencia <- function(){
-  
+potencia <- function(a, b = 2){
+  a ^ b
 }
-
+potencia(10)
+potencia(10, 4)
 ```
 
 ## Graficar una función
