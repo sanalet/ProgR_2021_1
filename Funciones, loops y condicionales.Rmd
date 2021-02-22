@@ -115,9 +115,12 @@ Grafiquen la función potencia:
 La conversión de grados centígrados a farenheit se hace usando la siguiente fórmula: $$F = C*\dfrac{9}{5} + 32$$. Cree una función que permita hacer la conversión para cualquier temperatura en grados centígrados.
 
 ```{r}
-transformacion <- function(){
-  
+transformacion <- function(c){
+  f <- c*9/5 + 32
+  print(f)
 }
+
+transformacion(0)
 ```
 
 Revise la ayuda de la función *paste*:
@@ -125,16 +128,18 @@ Revise la ayuda de la función *paste*:
 * ¿Qué hace esta función?
 * ¿Cuáles son los argumentos de la función?
 
-```{r}
-
-```
 Usando la función *paste*, modifique la función que acaba de crear para que incluya la siguiente expresión como resultado de la función:
 
 * *"X grados centígrados, son Y grados farenheit"*
 * Por ejemplo, para el caso de 0 grados centígrados, la función debe arrojar como resultado la siguiente expresión: *"0 grados centígrados, son 32 grados farenheit"*
 
 ```{r}
-
+transformacion <- function(c){
+  f <- c*9/5 + 32
+  respuesta <- paste(c, "grados centígrados, son", f, "grados farenheit")
+  print(respuesta)
+}
+transformacion(0)
 ```
 
 Por defecto, las funciones retornan del valor correspondiente a la última línea de código dentro de la función. Por ejemplo, al ejecutar la siguiente función solamente se muestra el resultado de la última fila:
@@ -174,8 +179,9 @@ suma3(5, 4)
 - Creen una función que permita calcular el coeficiente de variación de un conjunto de datos.
 
 ```{r}
-cv <- function(){
-  
+cv <- function(x){
+  cv <- sd(x, na.rm = TRUE)/mean(x, na.rm = TRUE)
+  print(cv)
 }
 
 ```
@@ -183,7 +189,16 @@ cv <- function(){
 - Una vez la haya creado, aplique esa función la variable de PIB per capita de la base gapminder.
 
 ```{r}
+library(gapminder)
+data("gapminder")
+cv(gapminder$gdpPercap)
 
+```
+```{r}
+prueba <- rep(c(10, 18, NA), 10)
+prueba
+mean(prueba, na.rm = TRUE)
+cv(prueba)
 ```
 
 
@@ -215,6 +230,18 @@ Otras pruebas son:
 
 #### if
 
+```{r}
+8==7
+8==8
+
+8 > 5
+5 > 8
+
+is.numeric(prueba)
+is.character(prueba)
+```
+
+
 Ejemplo:
 
 1. Cree un objeto que se llame x, y asigne el valor de 5 a ese objeto
@@ -232,7 +259,10 @@ if (x > 0) {
 Repita el ejercicio con x = -2.
 
 ```{r}
-
+x <- -2
+if (x > 0) {
+  print("positivo")
+}
 ```
 
 #### if y else
@@ -254,7 +284,6 @@ if(x > 0){
   print("negativo")
   }
 ```
-
 Usando los comandos **if** y **else**, cree una **función** que tome un número y realice lo siguiente:
 
 * Si el número es mayor a cero, escriba "positivo".
@@ -262,9 +291,36 @@ Usando los comandos **if** y **else**, cree una **función** que tome un número
 * Si es igual a cero, escriba "El número es 0"
 
 ```{r}
+signo <- function(x) {
+  if (x >0) {
+    print("positivo") 
+  } else if(x <0){
+    print("negativo")
+  } else {
+    print("El número es 0")
+  }
+}
 
+signo(0)
 ```
 
+```{r}
+signo <- function(x) {
+  if (x >0) {
+    print("positivo") 
+  } 
+  
+  if(x <0){
+    print("negativo")
+  } 
+  
+  if (x == 0) {
+    print("El número es 0")
+  }
+}
+
+signo(0)
+```
 Usando los comandos **if** y **else**, cree una función que tome un número y realice lo siguiente:
 
 * Si el número es menor o igual a 10, eleve el número al cuadrado.
@@ -273,7 +329,31 @@ Usando los comandos **if** y **else**, cree una función que tome un número y r
 Pruebe que la función opera correctamente con los números 5, 10 y 20.
 
 ```{r}
+diez <- function(x){
+  if(x<=10){
+    x^2
+  } else{
+    x*2
+  }
+}
 
+diez(5)
+diez(10)
+diez(20)
+
+```
+```{r}
+diez <- function(x){
+  if(x <= 10){
+    print(x ^ 2)
+  }
+  if (x > 10) {
+    print(x * 2)
+  }
+}
+
+diez(10)
+diez(20)
 ```
 
 Use alguno de los condicionales vistos para resolver los siguientes ejercicios:
@@ -281,12 +361,35 @@ Use alguno de los condicionales vistos para resolver los siguientes ejercicios:
 1. Cree una función que estime el valor absoluto de un número, e imprima la siguiente expresión: "El valor absoluto de x es ___". No use la función `abs`.
 
 ```{r}
+absoluto <- function(x){
+  if(x > 0) {
+    paste("El valor absoluto de", x, "es", x)
+    } 
+  else if (x < 0){
+    valor <- -x
+    paste("El valor absoluto de", x, "es", valor)
+    }
+  else{
+    paste("El valor absoluto de", x, "es", 0)
+    }
+  } 
+absoluto(-5)
 
 ```
 
 2. Cree una función que calcule la raíz cuadrada de un número. La función debe imprimir la expresión "La raíz cuadrada de x es __". Si el número es negativo, el resultado debe ser NA.
 
 ```{r}
+raíz_cuadrada <- function(x){
+  if(x<0){
+    print(NA)
+  } else {
+    resultado <- sqrt(x)
+    paste("La raíz cuadrada de", x, "es", resultado)
+  }
+}
+raíz_cuadrada(-3)
+raíz_cuadrada(9)
 
 ```
 
@@ -299,6 +402,138 @@ Use alguno de los condicionales vistos para resolver los siguientes ejercicios:
     * Si no se cumplen, el resultado debe ser la siguiente expresión "Uno de los dos objetos no es un número".
     
 ```{r}
+division <- function(x, y){
+  if (is.numeric(x) & is.numeric(y) & y != 0){
+    x/y
+  } else {
+    print("Uno de los dos objetos no es un número")
+  }
+}
+
+division(10, "A")
+```
+
+```{r}
+número <- function(x,y){
+  if(is.numeric(x) == TRUE & is.numeric(y) == TRUE & y != 0) {
+    paste(x/y)
+    } 
+  else {
+    print("Uno de los dos objetos no es un número")
+    }
+  } 
+número(2,-3)
+
+```
+# Loops: ***for***
+
+* Un loop (ciclo) ***for*** realiza una acción de manera iterativa para los elementos contenidos o identificados en un vector.
+
+* La estructura general de un loop (ciclo) ***for*** es la siguiente:
+
+```{r, eval=FALSE}
+for (indice in vector){
+  Realice una acción
+}
+```
+
+Por ejemplo, el siguiente loop toma los números de 1 a 10 y los muestra en la consola:
+
+```{r}
+for(i in 1:10){
+  print(i)
+}
+```
+
+* Realice un loop que tome los números de -5 a 4 y los multiplique por dos.
+
+```{r}
 
 ```
 
+Cree el siguiente vector:
+
+```{r}
+frutas <- c("manzana", "maracuyá", "feijoa")
+```
+
+Use un loop for para calcular el número de letras en cada palabra y mostrarlo en la consola.
+
+```{r}
+nchar("manzana")
+nchar("maracuyá")
+nchar("feijoa")
+
+for (i in frutas){
+  print(nchar(i))
+}
+```
+* Cree un vector vacío llamado *tamaño*, así:
+```{r}
+tamaño <- c()
+```
+
+* Modifique el loop que acaba de crear para que en el vector *tamaño* se asignen los valores correspondiente al tamaño de cada palabra.
+
+```{r}
+
+frutas[1]
+frutas[2]
+frutas[3]
+
+nchar(frutas[1])
+nchar(frutas[2])
+nchar(frutas[3])
+
+tamaño[1] <- nchar(frutas[1])
+tamaño[2] <- nchar(frutas[2])
+tamaño[3] <- nchar(frutas[3])
+tamaño
+
+# ¿Cómo podría automatizar este proceso?
+
+tamaño <- c()
+
+for (i in 1:3){
+  tamaño[i] <- nchar(frutas[i])
+}
+tamaño
+# ¿Qué rol cumple i en este caso?
+
+# Cómo hago si quiero que este loop sirva para vectores de cualquier tamaño, sin tener que 
+# escribir manualmente la secuencia en la que aplicaré el loop?
+
+#seq_along crea una secuencia que va de 1 hasta el tamaño del vector:
+
+seq_along(palabras)
+seq_along(frutas2)
+
+seq_along(frutas)
+
+
+# Podemos usar seq_along para hacer que el loop sea potencialmente aplicable con cualquier vector:
+
+tamaño <- c()
+
+for (i in seq_along(frutas)){
+  tamaño[i] <- nchar(frutas[i])
+}
+tamaño
+
+# Esto podría ser fácilmente aplicado a cualquier vector:
+tamaño <- c()
+
+for (i in seq_along(palabras)){
+  tamaño[i] <- nchar(palabras[i])
+}
+
+tamaño
+
+```
+
+
+* Convierta el loop anterior en una función que pueda ser aplicada a cualquier vector que contenga palabras y cree un vector con tres nombres para probar la función.
+
+```{r}
+
+```
