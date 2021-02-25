@@ -485,6 +485,7 @@ tamaño
 2. Calculo el número de letras que tiene un elemento y lo asigno al primer elemento de ese vector:
 
 ```{r}
+nchar("manzana")
 nchar(frutas[1])
 tamaño[1] <- nchar(frutas[1])
 tamaño
@@ -495,6 +496,7 @@ Si deseo hacer lo mismo para todos los elementos, tendría que repetir el proces
 ```{r}
 tamaño[2] <- nchar(frutas[2])
 tamaño[3] <- nchar(frutas[3])
+tamaño
 ```
 
 ¿Cómo podría usar un loop para "automatizar" este proceso?
@@ -502,8 +504,6 @@ tamaño[3] <- nchar(frutas[3])
 
 Una primera alternativa sería la siguiente:
 ```{r}
-
-
 for (i in frutas){
   print(nchar(i))
 }
@@ -513,6 +513,7 @@ Vuelva a crear un vector vacío llamado *tamaño*, así:
 
 ```{r}
 tamaño <- c()
+tamaño
 ```
 
 Modifique el loop que acaba de crear para que en el vector *tamaño* se asignen los valores correspondiente al tamaño de cada palabra.
@@ -528,11 +529,31 @@ tamaño
 
 ¿Cómo hago si quiero que este loop sirva para vectores de cualquier tamaño, sin tener que escribir manualmente la secuencia en la que aplicaré el loop?
 
+```{r}
+seq(from = 1, to = 500, by = 10)
+seq(1, 15, 1)
+1:15
+```
+
+
 `seq_along` crea una secuencia que va de 1 hasta el tamaño del vector:
+
+```{r}
+1:length(frutas)
+```
+
 
 ```{r}
 seq_along(frutas)
 ```
+
+```{r}
+x <- sample(1:10, 6)
+x
+
+seq_along(x)
+```
+
 
 Podemos usar `seq_along` para hacer que el loop sea aplicable a cualquier vector sin importar su tamaño:
 
@@ -549,21 +570,52 @@ tamaño
 Este loop podría ser fácilmente aplicado a cualquier vector:
 
 ```{r}
-palabras <- words
 
+set.seed(1244)
+
+palabras <- words
+palabras
+length(palabras)
+
+palabras2 <- sample(words, 500)
+
+palabras3 <- sample(words, 980)
 tamaño <- c()
 
 for (i in seq_along(palabras)){
   tamaño[i] <- nchar(palabras[i])
 }
-
+length(tamaño)
 tamaño[1:10]
 ```
 
 Convierta el loop anterior en una función que pueda ser aplicada a cualquier vector que contenga palabras y cree un vector con tres nombres para probar la función. Prueba que la función opera con los vectores palabras y frutas:
 
 ```{r}
+rm(tamano)
+contar_palabras <- function(x){
+  tamano <<- c()
+  for (i in seq_along(x)){
+    tamano[i] <<- nchar(x[i])
+  }
+}
+```
 
+
+```{r}
+contar_palabras(frutas)
+contar_palabras(palabras)
+```
+
+
+```{r}
+contar_palabras(palabras)
+summary(tamano)
+```
+
+```{r}
+contar_palabras(fruit)
+summary(tamano)
 ```
 
 
@@ -592,7 +644,15 @@ while(x <= 5){
 ```
 * Use un loop while para mostrar en la consola los números impares de 1 a 7.
 
+
+
 ```{r}
+x <- 1
+
+while(x <= 7){
+  print(x)
+  x <- x + 2
+}
 
 
 ```
@@ -631,7 +691,16 @@ for(i in 1:10){
 * Cree el objeto x <- 1, y cree un loop ***while*** en el que x aumentaría secuencialmente de 1 a 5. El loop debe terminar si x es igual a 3. 
 
 ```{r}
+x <- 1
 
+
+while(x <= 5){
+  if (x == 3){
+    break
+  }
+  print(x)
+  x <- x + 1
+}
 
 ```
 
@@ -639,6 +708,15 @@ for(i in 1:10){
 * Cree el objeto x <- 1, y cree un loop ***while*** en el que x aumentaría secuencialmente de 2 a 5. El loop debe saltar a la siguiente iteración si x es igual a 3.
 
 ```{r}
+x <- 1
+
+while (x < 5){
+  x <- x + 1
+  if (x == 3){
+    next
+  }
+  print(x)
+}
 
 ```
 
