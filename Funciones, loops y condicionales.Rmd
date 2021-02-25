@@ -471,83 +471,289 @@ Cree el siguiente vector:
 frutas <- c("manzana", "maracuyá", "feijoa")
 ```
 
-Use un loop for para calcular el número de letras en cada palabra y mostrarlo en la consola.
+¿Cómo podría tomar cada palabra y calcular el número de letras que cada una tiene y luego colocar el resultado en en vector?
+
+"Manualmente" esto implicaría lo siguiente, para un elemento:
+
+1. Creo un vector vacío en el que posteriormente pondré los números
 
 ```{r}
-nchar("manzana")
-nchar("maracuyá")
-nchar("feijoa")
+tamaño <- c()
+tamaño
+
+```
+2. Calculo el número de letras que tiene un elemento y lo asigno al primer elemento de ese vector:
+
+```{r}
+nchar(frutas[1])
+tamaño[1] <- nchar(frutas[1])
+tamaño
+```
+
+Si deseo hacer lo mismo para todos los elementos, tendría que repetir el proceso:
+
+```{r}
+tamaño[2] <- nchar(frutas[2])
+tamaño[3] <- nchar(frutas[3])
+```
+
+¿Cómo podría usar un loop para "automatizar" este proceso?
+
+
+Una primera alternativa sería la siguiente:
+```{r}
+
 
 for (i in frutas){
   print(nchar(i))
 }
 ```
-* Cree un vector vacío llamado *tamaño*, así:
+
+Vuelva a crear un vector vacío llamado *tamaño*, así:
+
 ```{r}
 tamaño <- c()
 ```
 
-* Modifique el loop que acaba de crear para que en el vector *tamaño* se asignen los valores correspondiente al tamaño de cada palabra.
+Modifique el loop que acaba de crear para que en el vector *tamaño* se asignen los valores correspondiente al tamaño de cada palabra.
 
 ```{r}
-
-frutas[1]
-frutas[2]
-frutas[3]
-
-nchar(frutas[1])
-nchar(frutas[2])
-nchar(frutas[3])
-
-tamaño[1] <- nchar(frutas[1])
-tamaño[2] <- nchar(frutas[2])
-tamaño[3] <- nchar(frutas[3])
-tamaño
-
-# ¿Cómo podría automatizar este proceso?
-
-tamaño <- c()
-
 for (i in 1:3){
   tamaño[i] <- nchar(frutas[i])
 }
 tamaño
-# ¿Qué rol cumple i en este caso?
+```
 
-# Cómo hago si quiero que este loop sirva para vectores de cualquier tamaño, sin tener que 
-# escribir manualmente la secuencia en la que aplicaré el loop?
+¿Qué rol cumple i en este caso?
 
-#seq_along crea una secuencia que va de 1 hasta el tamaño del vector:
+¿Cómo hago si quiero que este loop sirva para vectores de cualquier tamaño, sin tener que escribir manualmente la secuencia en la que aplicaré el loop?
 
-seq_along(palabras)
-seq_along(frutas2)
+`seq_along` crea una secuencia que va de 1 hasta el tamaño del vector:
 
+```{r}
 seq_along(frutas)
+```
+
+Podemos usar `seq_along` para hacer que el loop sea aplicable a cualquier vector sin importar su tamaño:
 
 
-# Podemos usar seq_along para hacer que el loop sea potencialmente aplicable con cualquier vector:
-
+```{r}
 tamaño <- c()
 
 for (i in seq_along(frutas)){
   tamaño[i] <- nchar(frutas[i])
 }
 tamaño
+```
 
-# Esto podría ser fácilmente aplicado a cualquier vector:
+Este loop podría ser fácilmente aplicado a cualquier vector:
+
+```{r}
+palabras <- words
+
 tamaño <- c()
 
 for (i in seq_along(palabras)){
   tamaño[i] <- nchar(palabras[i])
 }
 
-tamaño
+tamaño[1:10]
+```
+
+Convierta el loop anterior en una función que pueda ser aplicada a cualquier vector que contenga palabras y cree un vector con tres nombres para probar la función. Prueba que la función opera con los vectores palabras y frutas:
+
+```{r}
 
 ```
 
 
-* Convierta el loop anterior en una función que pueda ser aplicada a cualquier vector que contenga palabras y cree un vector con tres nombres para probar la función.
+# Loops: ***while***
+
+Un loop (ciclo) ***while*** realiza una acción de manera iterativa, **mientras se cumple una condición**.
+
+* La estructura general de un loop (ciclo) ***while*** es la siguiente:
+
+```{r, eval=FALSE}
+while(condición){
+  Realice una acción
+}
+```
+
+* Por ejemplo, el siguiente loop ejecuta la acción mientras x es menor o igual a 5:
 
 ```{r}
 
+x <- 0
+
+while(x <= 5){
+  print(x)
+  x <- x + 1
+}
+```
+* Use un loop while para mostrar en la consola los números impares de 1 a 7.
+
+```{r}
+
+
+```
+
+
+# Loops: controlar loops con ***break*** y ***next***
+
+* Las funciones ***break*** y ***next*** controlan el flujo de un loop.
+
+* ***break*** sale completamente del loop.
+
+* ***next*** salta a la siguiente iteración del loop.
+
+* Por ejemplo, el siguiente loop termina si x es igual a 4:
+
+```{r}
+for(i in 1:10){
+  if(i==4){
+    break
+  }
+  print(i)
+}
+```
+
+* El siguiente loop se salta la acción si i es igual a 4
+
+```{r}
+for(i in 1:10){
+  if(i==4){
+    next
+  }
+  print(i)
+}
+```
+
+* Cree el objeto x <- 1, y cree un loop ***while*** en el que x aumentaría secuencialmente de 1 a 5. El loop debe terminar si x es igual a 3. 
+
+```{r}
+
+
+```
+
+
+* Cree el objeto x <- 1, y cree un loop ***while*** en el que x aumentaría secuencialmente de 2 a 5. El loop debe saltar a la siguiente iteración si x es igual a 3.
+
+```{r}
+
+```
+
+
+# Ejemplos de condicionales y loops útiles:
+
+## Crear carpetas en el computador:
+
+Supongan que están iniciando un proyecto de análisis de datos de ceros, y deben comenzar por crear carpetas en su computador para organizar la información. Podría comenzar por crear un vector con los nombres de las carpetas:
+
+```{r}
+carpetas <- c("Texto", "Resultados", "Gráficas", "Scripts", "Datos2")
+```
+
+Luego podría crear una función que tomará el vector como entrada y creará las carpetas en el computador usando la función `dir.create`:
+
+```{r}
+dir.create("Miscelaneo")
+
+crear_carpetas <- function(x){
+  for (i in x) {
+      dir.create(i)
+    }
+}
+```
+
+Finalmente, aplican la función sobre el vector con los nombres:
+
+```{r}
+crear_carpetas(carpetas)
+```
+
+## Hacer gráficas para varias variables
+
+Primero, creo un vector con los nombres de las variables de interés:
+
+```{r}
+variables <- c("REPITENCIA", "DESERCIÓN", "APROBACIÓN")
+```
+
+## Activar paquetes:
+
+El siguiente código instala los paquetes incluidos en el vector:
+
+```{r}
+paquetes <- c("descr", "forecast", "stargazer")
+
+for (i in paquetes) {
+  # require
+  library(i, character.only = TRUE)
+}
+```
+
+
+## Simular datos y calcular la media de los datos:
+
+```{r}
+medias <- c()
+
+for (i in 1:1000){
+  x <- rnorm(10000)
+  medias[i] <- mean(i)
+}
+
+mean(medias)
+ggplot(data = as_tibble(medias), mapping = aes(x = medias)) + 
+  geom_density() 
+```
+
+
+
+## Cálculo medias:
+
+
+```{r}
+puntajes <- saber11_2019 %>% select(starts_with("PUNT"))
+
+nombres <- names(puntajes)
+
+medias1 <- c()
+
+attach(puntajes)
+
+for (i in seq_along(nombres)) {
+  medias1[i] <- mean(get(nombres[i]), na.rm = TRUE)
+}
+```
+
+# Funciones apply
+
+Usando lapply:
+
+```{r}
+medias3 <- lapply(puntajes, mean, na.rm = TRUE)
+
+```
+
+Usando vapply:
+
+```{r}
+medias4 <- sapply(puntajes, mean, na.rm = TRUE)
+```
+
+# Funciones del paquete purr
+
+Usando map:
+
+```{r}
+medias5 <- map(puntajes, mean, na.rm = TRUE) 
+
+medias5 <- puntajes %>% map(mean, na.rm = TRUE)
+```
+
+O map_dbl:
+
+```{r}
+medias6 <- puntajes %>% map_dbl(mean, na.rm = TRUE)
 ```
