@@ -769,10 +769,10 @@ for (i in paquetes) {
 medias <- c()
 
 for (i in 1:1000){
-  x <- rnorm(10000)
-  medias[i] <- mean(i)
+  x <- rnorm(1000)
+  medias[i] <- mean(x)
 }
-
+medias[1:10]
 mean(medias)
 ggplot(data = as_tibble(medias), mapping = aes(x = medias)) + 
   geom_density() 
@@ -787,14 +787,17 @@ ggplot(data = as_tibble(medias), mapping = aes(x = medias)) +
 puntajes <- saber11_2019 %>% select(starts_with("PUNT"))
 
 nombres <- names(puntajes)
+nombres
 
-medias1 <- c()
+medias <- c()
 
 attach(puntajes)
 
 for (i in seq_along(nombres)) {
-  medias1[i] <- mean(get(nombres[i]), na.rm = TRUE)
+  medias[i] <- mean(get(nombres[i]), na.rm = TRUE)
 }
+
+medias
 ```
 
 # Funciones apply
@@ -827,3 +830,8 @@ O map_dbl:
 ```{r}
 medias6 <- puntajes %>% map_dbl(mean, na.rm = TRUE)
 ```
+
+```{r}
+medias7 <- puntajes %>% map_int(mean, na.rm = TRUE)
+```
+
