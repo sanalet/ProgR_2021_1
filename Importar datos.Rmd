@@ -1,0 +1,236 @@
+---
+title: "Importar datos"
+output: 
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Activar paquetes
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+# Limpiar espacio de trabajo
+
+```{r}
+rm(list = ls())
+```
+
+# Importar datos a R
+
+En R se pueden cargar distintos tipos de datos:
+
+Tipos de datos                                    | Paquete
+------------------------------------------------  | -------------
+Datos delimitados por comas u otros delimitadores | readr
+Datos de Stata y otros programas                  | haven
+Datos de Excel                                    | readxl
+
+La manera más fácil de importar una base de datos es usando el botón **Import Dataset** en la parte superior derecha.
+
+## Importar archivos de texto delimitados: readr
+
+* La principal función para importar datos delimitados por comas u otros símbolos es: read_delim(archivo, delimitador).
+* El delimitador más común es la coma (","), pero también se usa "|", ";" o *tab*.
+* `read_csv`, `read_csv2` y `read_tsv`  cumplen la misma función, pero solamente operan para archivos delimitados por comas, punto y coma y "|", respectivamente.
+* La ventaja de estas funciones es que reconocen el tipo de datos, son más rápidos y proveen más información que otras funciones como `read.table()` o `read.csv()`.
+* El resultado de estas funciones es un objeto de tipo *tibble* que es una extensión del objeto *data.frame*.
+
+**Antes de importar cualquier archivo usando readr, es necesario explorar el archivo en un editor de texto (i.e. Bloc de Notas o TextEdit) para saber:**
+
+1. Si los nombres de las variables están en la primera columna, y
+2. Cuál es el delimitador.
+
+Ejemplos:
+
+1. Importen el archivo *Tasa_de_Cambio_Representativa_del__Mercado_-Historico.csv*
+
+```{r}
+trm <- read_csv("Datos/Tasa_de_Cambio_Representativa_del__Mercado_-Historico.csv")
+
+```
+
+2. Importen el archivo *saber11_2019.csv*
+
+```{r}
+saber11_2019 <- read_delim("Datos/saber11_2019.csv", delim = ";")
+```
+
+3. Importen el archivo *Area_Caracteristicas_generales_Personas.csv*
+
+```{r}
+personas <- read_delim("Datos/Área - Características generales (Personas).csv", delim = "|")
+```
+
+Diccionario de datos: http://microdatos.dane.gov.co/index.php/catalog/599/data_dictionary
+
+2. Importen el archivo *ESTADISTICAS_EN_EDUCACION_BASICA_POR_MUNICIPIO.tsv*
+
+```{r}
+educacion <- read_delim("Datos/ESTADISTICAS_EN_EDUCACION_BASICA_POR_MUNICIPIO.tsv", delim = "\t")
+```
+
+### Usando direcciones Web:
+
+En todos los ejemplos anteriores se puede sustituir el nombre del archivo por una dirección Web. Por ejemplo, en el caso de la trm, cuyos datos están disponibles en www.datos.gov.co:
+
+```{r}
+trm2 <- read_csv("https://www.datos.gov.co/api/views/mcec-87by/rows.csv?accessType=DOWNLOAD")
+
+
+```
+
+Por ejemplo, para cargar los datos sobre los casos de Covid-19:
+
+```{r}
+# covid <- read_csv("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv?accessType=DOWNLOAD")
+```
+
+## Importar archivos de otros programas: *haven*
+
+* Las funciones de este paquete sirven para importar datos de Stata, SAS y SPSS.
+* En el caso de Stata la función que se utiliza es `read_stata(archivo, encoding = NULL)` o `read_dta(archivo, encoding = NULL)`.
+* En archivos creados con versiones anteriores a Stata 14 es necesario especificar el "encoding" de los caracteres usados en el archivo.
+* `write_dta(datos, ruta, version = 14)` permite guardar archivos de R a archivos de Stata.
+
+```{r}
+library(haven)
+general <- read_stata("Datos/PANEL_CARACTERISTICAS_GENERALES(2019).dta")
+
+
+gobierno <- read_stata("Datos/PANEL_BUEN_GOBIERNO(2019).dta")
+library(help = "haven")
+```
+
+
+## Importar arcivos de excel: *readxl*
+
+* `read_excel()` lee archivos .xls o .xlsx.
+* Si saben qué tipo de archivo es pueden usar `read_xls()` o `read_xlsx()`, respectivamente.
+* Los argumentos en los tres casos son:
+  + Ruta Archivo
+  + Hoja del archivo: por defecto usa la primera hoja, a menos que con el número o el nombre se seleccion otra.
+ 
+  
+```{r}
+library(readxl)
+IPC <- read_excel("Datos/IPC_Indices.xlsx")
+```
+  
+## Paquetes para descargar directamente datos desde R
+
+### Activos financieros
+
+El paquete `quantmod` permite descargar información directamente de Yahoo Finance. Por ejemplo, para obtener información sobre los precios de la acción de Apple:
+
+```{r}
+# install.packages("quantmod")
+library(quantmod)
+library(help = "quantmod")
+getSymbols("AAPL", return.class = "data.frame")
+```
+
+## Información del Banco Mundial
+
+El paquete wbstats permite buscar y descargar información que se encuentran en la API del Banco Mundial. Para instalar y activar el paquete:
+
+```{r}
+# install.packages("wbstats")
+library(wbstats)
+```
+
+### Buscar información disponible
+
+El paquete wbstats contiene una versión en memoria de la información disponible. A esta información se puede acceder con la función `wb_cachelist`.  
+
+```{r}
+str(wb_cachelist, max.level = 1)
+```
+
+La información contenida en `wb_cachelist` es la que usan otras funciones del paquete para buscar las coincidencias de información. 
+
+Para encontrar la información más actualizada, se puede usar la función `wb_cache`:}
+
+```{r}
+nueva_mem <- wb_cache()
+str(nueva_mem, max.level = 1)
+```
+Si se quiere usar esta información en las búsquedas que se hagan con las otras funciones de los paquetes, debe modificarse el argumento `cache` y fijarlo a la lista a la que asignamos el resultado de `wb_cache`. En este caso lo asignaríamos al objeto `new_mem`
+
+Para descargar el listado de indicadores en español, podría usar la siguiente función:
+
+```{r}
+nueva_mem_es <- wb_cache(lang = "es")
+str(nueva_mem_es, max.level = 1)
+```
+
+
+La función `wb_search` busca información en la tabla de indicadores que proviende de `wb_cachelist` o de `wb_cache`. Por ejemplo, para buscar qué indicadores hay sobre desempleo, usaría la siguiente función:
+
+```{r}
+unemp <- wb_search("unemployment")
+```
+
+Si quiero usar la lista que obtuve con `wb_cache`, entonces:
+
+```{r}
+unemp <- wb_search("unemployment", cache = nueva_mem)
+```
+
+O usando la lista de los indicadores en español:
+
+```{r}
+desempleo <- wb_search("desempleo", cache = nueva_mem_es)
+```
+
+Si quisiera buscar en otros campos, distintos al nombre y a la descripción de los indicadores, podría modificar el argumento `fields`:
+
+```{r}
+IMF <- wb_search("IMF", cache = nueva_mem, fields = "source_org")
+```
+
+### Descargar información disponible
+
+Para descargar información de un indicador en particular, en un periodo para todos los países:
+
+```{r}
+unemp_data <- wb_data("SL.UEM.TOTL.NE.ZS", start_date = 2017, end_date = 2019)
+```
+
+Para descargar información agregada por regiones:
+
+```{r}
+unemp_data_reg <- wb_data("SL.UEM.TOTL.NE.ZS", start_date = 2017, end_date = 2019, 
+                      country = "regions")
+```
+
+Para descargar información de países y los agregados regionales y por nivel de ingreso:
+
+```{r}
+unemp_data_all <- wb_data("SL.UEM.TOTL.NE.ZS", start_date = 2017, end_date = 2019, 
+                      country = "all")
+```
+
+Para descargar varios indicadores:
+
+```{r}
+unemp_t_m_f <- wb_data(c("SL.UEM.TOTL.NE.ZS", "SL.UEM.TOTL.MA.NE.ZS", "SL.UEM.TOTL.FE.NE.ZS"), start_date = 2017, end_date = 2019)
+```
+
+Para descargar el valor más reciente:
+
+```{r}
+unemp_mrv <- wb_data(c("SL.UEM.TOTL.NE.ZS", "SL.UEM.TOTL.MA.NE.ZS", "SL.UEM.TOTL.FE.NE.ZS"),
+                     mrv = 1)
+```
+
+Para descargar el valor más reciente, sin valores faltantes:
+
+```{r}
+unemp_mrnev <- wb_data(c("SL.UEM.TOTL.NE.ZS"),
+                     mrnev = 1)
+```
+
