@@ -749,14 +749,6 @@ Finalmente, aplican la función sobre el vector con los nombres:
 crear_carpetas(carpetas)
 ```
 
-## Hacer gráficas para varias variables
-
-Primero, creo un vector con los nombres de las variables de interés:
-
-```{r}
-variables <- c("REPITENCIA", "DESERCIÓN", "APROBACIÓN")
-```
-
 ## Activar paquetes:
 
 El siguiente código instala los paquetes incluidos en el vector:
@@ -820,7 +812,7 @@ Usando vapply:
 medias4 <- sapply(puntajes, mean, na.rm = TRUE)
 ```
 
-# Funciones del paquete purr
+# Funciones del paquete purrr
 
 Usando map:
 
