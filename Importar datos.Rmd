@@ -39,7 +39,7 @@ La manera más fácil de importar una base de datos es usando el botón **Import
 * La ventaja de estas funciones es que reconocen el tipo de datos, son más rápidos y proveen más información que otras funciones como `read.table()` o `read.csv()`.
 * El resultado de estas funciones es un objeto de tipo *tibble* que es una extensión del objeto *data.frame*.
 
-**Antes de importar cualquier archivo usando readr, es necesario explorar el archivo en un editor de texto (i.e. Bloc de Notas o TextEdit) para saber:**
+**Antes de importar cualquier archivo usando readr, es útil explorar el archivo en un editor de texto (i.e. Bloc de Notas o TextEdit) para saber:**
 
 1. Si los nombres de las variables están en la primera columna, y
 2. Cuál es el delimitador.
@@ -232,5 +232,58 @@ Para descargar el valor más reciente, sin valores faltantes:
 ```{r}
 unemp_mrnev <- wb_data(c("SL.UEM.TOTL.NE.ZS"),
                      mrnev = 1)
+```
+
+# Importar varios conjuntos de datos usando un bucle for
+
+Para esta sección, es necesario que descarguen el archivo comprimido que se llama educación, lo descompriman y lo coloquen en la carpeta de datos dentro de su proyecto. 
+
+¿Qué función se puede usar para listar los archivos que están en un directorio?
+
+```{r}
+
+```
+
+Usando esa función vamos a crear un vector que contenga los nombres de los archivos que vamos a importar. Si bien esto se podría hacer manualmente, esto no es eficiente, en particular si tenemos un número grande de archivos. 
+
+```{r}
+archivos <- list.files("Datos/Educación/")
+```
+
+¿Cómo se importaría UNO de estos archivos'
+
+```{r}
+educacion <- read_csv("Datos/Educación/educación_2011.csv")
+```
+
+Con el vector que creamos y la función anterior vector ya podemos realizar el proceso de importación:
+
+```{r}
+
+ 
+```
+
+La función `bind_rows` de dplyr permite agregar filas a una base de datos. ¿Cómo se podría modificar este loop para unir todos los archivos en una sola base?
+
+```{r}
+  
+```
+
+# Importar varios conjuntos de datos usando map
+
+¿Cómo podrían hacer lo que acaban de hacer usando la función map?
+
+```{r}
+datos <- archivos %>% 
+  map(~ read_csv(paste0("Datos/Educación/", .))) 
+datos2 <- bind_rows(datos)
+```
+
+Revise la ayuda de la función `reduce`. ¿Cómo podría complementarse la anterior función aprovechando esta función?
+
+```{r}
+datos <- archivos %>% 
+  map(~ read_csv(paste0("Datos/Educación/", .))) %>% 
+  reduce(bind_rows)
 ```
 
