@@ -1,0 +1,55 @@
+---
+title: "Introducción a Webscrapping en R"
+output: html_notebook
+---
+
+El paquete rvest es el que permite hacer webscrapping en R:
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(help = "rvest")
+```
+
+
+De esta página vamos a hacer el Webscrapping
+
+```{r}
+pages <-"https://datosmacro.expansion.com/demografia/indice-brecha-genero-global"
+```
+
+Pedimos a R que lea la página:
+
+```{r}
+scraped_page <- read_html(pages)
+```
+
+La función html_nodes permite extraer la información de la página. Para extraer el código que referencia el lugar del que se debe extraer la información, es necesario usar SelectorGadget en Google Chrome. 
+
+Comencemos por extraer la lista de países:
+
+```{r}
+paises <- scraped_page %>% html_nodes("td:nth-child(1)") %>% html_text() #%>% as.character()
+paises 
+```
+
+Ahora, los valores del índice:
+```{r}
+indice <- scraped_page %>% html_nodes(".numero+ .numero") %>% html_text() #%>% as.character()
+indice
+```
+
+Y ahora, la variación:
+
+```{r}
+variacion <- scraped_page %>% html_nodes(".numero:nth-child(5)") %>% html_text()
+variacion
+```
+
+Por último, unimos todo en un solo tibble:
+
+```{r}
+brechas <- tibble(paises, indice, variacion)
+brechas
+```
+
