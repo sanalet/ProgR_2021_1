@@ -1,5 +1,6 @@
 ---
 title: "Manejo de datos"
+author: "Santiago Tellez Cañas"
 output: 
   html_notebook:
     toc: yes
@@ -10,6 +11,7 @@ output:
 
 ```{r}
 library(tidyverse)
+library(haven)
 ```
 
 # Limpiar espacio de trabajo
@@ -180,3 +182,96 @@ lista3 <- unite(data = lista, col = nombre_completo, Nombres, Apellidos, sep = "
 
 ```
 
+
+
+
+# Manejo de datos faltantes
+
+- El paquete tidyr también contiene funciones para tratar los valores faltantes (i.e. NA). 
+- Estas funciones principlamente permiten (1) eliminar las observaciones con valores faltantes (`drop_na`), (2) completar las observaciones con valores faltantes con los valores de observaciones previas o posteriores (`fill`), y (3) reemplazar los valores faltantes con otro valor (`replace_na`).
+- **Estas funciones deben usarse con cuidado**. 
+- Antes de eliminar, completar o reemplazar valores faltantes es necesario conocer la estructura de los datos, entender porqué puede haber valores faltantes, y qué tipo de información se perdería si, por ejemplo, se descartan todas las observaciones que tienen datos faltantes. 
+
+## Explorar datos faltantes
+
+Instalar y activar el paquete naniar:
+
+```{r}
+# install.packages("naniar")
+library(naniar)
+```
+Acá encuentran un buen recurso para ver qué funcionalidades tiene el paquete: https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html
+
+Crear datos para explorar:
+
+```{r}
+puntajes <- saber11_2019 %>% 
+  select(starts_with("PUNT"), ESTU_ETNIA, ESTU_INSE_INDIVIDUAL,
+         starts_with("FAMI_EDUCACION"))
+```
+
+Explorar datos creados
+
+```{r}
+glimpse(puntajes)
+```
+
+
+```{r}
+vis_miss(puntajes)
+```
+
+```{r}
+gg_miss_var(puntajes)
+```
+
+
+## Borrar observaciones con datos faltantes:
+
+La función `drop_na` elimina las observaciones con valores faltantes en las columnas que se indiquen. Si no se indica ninguna columna, entonces la función borra las observaciones con valores faltantes en todas las columnas:
+
+- Importen la base de datos: saber11_2019.csv
+
+```{r}
+saber11_2019 <- read_delim("Datos/saber11_2019.csv", delim = ";")
+```
+
+- Noten que actualmente la base tiene 54621 observaciones. 
+
+- Si aplico `drop_na` sin indicar ninguna columna se borran todas las observaciones pues es posible que todas las observaciones tengan algun valor faltante en alguna de las variables (P. Ej. ESTU_ETNIA)
+
+```{r}
+saber_sin_na <- drop_na(saber11_2019)
+```
+
+- Para solamente borrar aquellas observaciones que tengan valores faltantes en las variables FAMI_ESTRATOVIVIENDA, FAMI_EDUCACIONMADRE y FAMI_EDUCACIONPADRE se debería usar la siguiente función:
+
+```{r}
+saber2 <- drop_na(saber11_2019, FAMI_ESTRATOVIVIENDA, FAMI_EDUCACIONMADRE, FAMI_EDUCACIONPADRE)
+```
+
+¿Cuántas observaciones se eliminan en este caso?
+
+## Rellenar observaciones con datos faltantes: 
+
+La función `fill` rellena los valores faltantes con valores completos que estén antes o despúes de los faltantes.
+
+- Importen la base *PANEL_CARACTERISTICAS_GENERALES.dta*.
+- Fíjense que la variable nbi no tiene información para todos los años. En los años en los que no hay información actualmente hay datos faltantes.
+- Para sustituir esos valores faltantes por el último valor completo se usaría la función `fill` de la siguiente manera:
+
+```{r}
+
+general <- read_stata("Datos/PANEL_CARACTERISTICAS_GENERALES(2019).dta")
+general <- fill(general, pobreza)
+```
+
+## Reemplazar observaciones faltantes
+
+La función `replace_na` reemplaza los valores faltantes con los valores que se indiquen dentro de la función. Por ejemplo, para reemplazar los valores faltantes de la variable ESTU_ETNIA en la base de datos de saber11 2018, se usaría la siguiente función:
+
+```{r}
+saber11_2019 <- replace_na(data = saber11_2019, replace = list(ESTU_ETNIA = "Sin reporte"))
+```
+
+Dentro de la lista se pueden ingresar más variables.

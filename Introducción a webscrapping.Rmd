@@ -21,7 +21,7 @@ pages <-"https://datosmacro.expansion.com/demografia/indice-brecha-genero-global
 Pedimos a R que lea la página:
 
 ```{r}
-scraped_page <- read_html(pages)
+pagina_desc <- read_html(pages)
 ```
 
 La función html_nodes permite extraer la información de la página. Para extraer el código que referencia el lugar del que se debe extraer la información, es necesario usar SelectorGadget en Google Chrome. 
@@ -29,7 +29,7 @@ La función html_nodes permite extraer la información de la página. Para extra
 Comencemos por extraer la lista de países:
 
 ```{r}
-paises <- scraped_page %>% html_nodes("td:nth-child(1)") %>% html_text() #%>% as.character()
+paises <- pagina_desc %>% html_nodes("td:nth-child(1)") %>% html_text() #%>% as.character()
 paises 
 ```
 
@@ -42,7 +42,7 @@ indice
 Y ahora, la variación:
 
 ```{r}
-variacion <- scraped_page %>% html_nodes(".numero:nth-child(5)") %>% html_text()
+variacion <- scraped_page %>% html_nodes(".hbar+ .numero") %>% html_text()
 variacion
 ```
 
