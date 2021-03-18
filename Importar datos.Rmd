@@ -10,7 +10,6 @@ output:
 
 ```{r}
 library(tidyverse)
-library(lubridate)
 ```
 
 # Limpiar espacio de trabajo
@@ -49,7 +48,7 @@ Ejemplos:
 1. Importen el archivo *Tasa_de_Cambio_Representativa_del__Mercado_-Historico.csv*
 
 ```{r}
-trm <- read_csv("Datos/Tasa_de_Cambio_Representativa_del__Mercado_-Historico.csv")
+trm <- read_delim("Datos/Tasa_de_Cambio_Representativa_del__Mercado_-Historico.csv", delim = ";", locale = locale(decimal_mark = ",", grouping_mark = "."))
 
 ```
 
@@ -62,7 +61,7 @@ saber11_2019 <- read_delim("Datos/saber11_2019.csv", delim = ";")
 3. Importen el archivo *Area_Caracteristicas_generales_Personas.csv*
 
 ```{r}
-personas <- read_delim("Datos/Área - Características generales (Personas).csv", delim = "|")
+personas <- read_delim("Datos/Area - CaracterIsticas generales (Personas).csv", delim = "|", locale = locale(decimal_mark = ",", grouping_mark = "."))
 ```
 
 Diccionario de datos: http://microdatos.dane.gov.co/index.php/catalog/599/data_dictionary
@@ -79,8 +78,6 @@ En todos los ejemplos anteriores se puede sustituir el nombre del archivo por un
 
 ```{r}
 trm2 <- read_csv("https://www.datos.gov.co/api/views/mcec-87by/rows.csv?accessType=DOWNLOAD")
-
-
 ```
 
 Por ejemplo, para cargar los datos sobre los casos de Covid-19:
@@ -98,7 +95,7 @@ Por ejemplo, para cargar los datos sobre los casos de Covid-19:
 
 ```{r}
 library(haven)
-general <- read_stata("Datos/PANEL_CARACTERISTICAS_GENERALES(2019).dta")
+general <- read_stata("Datos/PANEL_SALUD_Y_SERVICIOS.dta")
 
 
 gobierno <- read_stata("Datos/PANEL_BUEN_GOBIERNO(2019).dta")
@@ -118,6 +115,8 @@ library(help = "haven")
 ```{r}
 library(readxl)
 IPC <- read_excel("Datos/IPC_Indices.xlsx")
+IPC <- read_excel("Datos/IPC_Indices.xlsx", skip = 8, n_max = 12)
+IPC <- read_excel("Datos/IPC_Indices.xlsx", range = "A9:R21")
 ```
   
 ## Paquetes para descargar directamente datos desde R
@@ -130,7 +129,7 @@ El paquete `quantmod` permite descargar información directamente de Yahoo Finan
 # install.packages("quantmod")
 library(quantmod)
 library(help = "quantmod")
-getSymbols("AAPL", return.class = "data.frame")
+getSymbols("BTC-USD", return.class = "data.frame")
 ```
 
 ## Información del Banco Mundial
@@ -207,6 +206,12 @@ unemp_data_reg <- wb_data("SL.UEM.TOTL.NE.ZS", start_date = 2017, end_date = 201
                       country = "regions")
 ```
 
+```{r}
+unemp_data_inc <- wb_data("SL.UEM.TOTL.NE.ZS", start_date = 2017, end_date = 2019, 
+                      country = "income_levels_only")
+```
+
+
 Para descargar información de países y los agregados regionales y por nivel de ingreso:
 
 ```{r}
@@ -241,13 +246,17 @@ Para esta sección, es necesario que descarguen el archivo comprimido que se lla
 ¿Qué función se puede usar para listar los archivos que están en un directorio?
 
 ```{r}
-
+ls()
+list.files(include.dirs = FALSE)
+dir()
+list.dirs()
 ```
 
 Usando esa función vamos a crear un vector que contenga los nombres de los archivos que vamos a importar. Si bien esto se podría hacer manualmente, esto no es eficiente, en particular si tenemos un número grande de archivos. 
 
 ```{r}
 archivos <- list.files("Datos/Educación/")
+
 ```
 
 ¿Cómo se importaría UNO de estos archivos'
@@ -256,17 +265,28 @@ archivos <- list.files("Datos/Educación/")
 educacion <- read_csv("Datos/Educación/educación_2011.csv")
 ```
 
-Con el vector que creamos y la función anterior vector ya podemos realizar el proceso de importación:
+Con el vector que creamos y la función anterior ya podemos realizar el proceso de importación:
 
 ```{r}
+x <- 1985
+assign("y", 1986)
+assign("z", x)
 
- 
+for (i in seq_along(archivos)) {
+  datos <- read_csv(paste0("Datos/Educación/", archivos[i]))
+  assign(archivos[i], datos)
+}
 ```
 
 La función `bind_rows` de dplyr permite agregar filas a una base de datos. ¿Cómo se podría modificar este loop para unir todos los archivos en una sola base?
 
 ```{r}
-  
+educacion <- tibble()
+
+for (i in seq_along(archivos)) {
+  datos <- read_csv(paste0("Datos/Educación/", archivos[i]))
+  educacion <- bind_rows(educacion, datos)
+}  
 ```
 
 # Importar varios conjuntos de datos usando map
