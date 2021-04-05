@@ -11,6 +11,7 @@ output:
 
 ```{r}
 library(tidyverse)
+library(lubridate)
 library(haven)
 library(readxl)
 library(knitr)
@@ -21,6 +22,14 @@ library(knitr)
 ```{r}
 rm(list = ls())
 
+```
+
+# Importar datos
+
+Importen la base de datos: saber11_2019.csv
+
+```{r}
+saber11_2019 <- read_delim("Datos/saber11_2019.csv", delim = ";")
 ```
 
 # Transformar bases de datos
@@ -221,11 +230,11 @@ library(naniar)
 
 Acá encuentran un buen recurso para ver qué funcionalidades tiene el paquete: <https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html>
 
-Importen la base de datos: saber11_2019.csv
-
 ```{r}
-saber11_2019 <- read_delim("Datos/saber11_2019.csv", delim = ";")
+library(help = "naniar")
 ```
+
+
 
 Crear datos para explorar:
 
@@ -253,7 +262,7 @@ gg_miss_var(puntajes)
 
 La función `drop_na` elimina las observaciones con valores faltantes en las columnas que se indiquen. Si no se indica ninguna columna, entonces la función borra las observaciones con valores faltantes en todas las columnas:
 
--   Noten que actualmente la base saer11_2019 tiene 54621 observaciones.
+-   Noten que actualmente la base saber11_2019 tiene 54621 observaciones.
 
 -   Si aplico `drop_na` sin indicar ninguna columna se borran todas las observaciones pues es posible que todas las observaciones tengan algun valor faltante en alguna de las variables (P. Ej. ESTU_ETNIA)
 
@@ -293,7 +302,7 @@ saber11_2019 <- replace_na(data = saber11_2019, replace = list(ESTU_ETNIA = "Sin
 
 Dentro de la lista se pueden ingresar más variables.
 
-# Unir bases de datos con distintas variables sobre los mismos individuos 
+# Unir bases de datos con distintas variables sobre algunos individuos 
 
 Dos casos en los que es común unir bases de datos con distintas variables sobre los mismos individuos:
 
@@ -323,7 +332,7 @@ include_graphics("outer.png")
 
 ## Ejemplo 1
 
-Voy a generar datos ficticios para crear dos bases. Primer fijo las semilla para que esto sea reproducible:
+Voy a generar datos ficticios para crear dos bases. Primer fijo la semilla para que esto sea reproducible:
 
 ```{r}
 set.seed(18032021)
@@ -348,6 +357,7 @@ Por último, uno la identificación y la edad en un tibble:
 base1 <- tibble(id, edad)
 base1
 ```
+
 Ahora, creo el número de identificación de los registros de la segunda base y los organizo en orden ascendente:
 
 ```{r}
@@ -397,6 +407,7 @@ inner_join(base1, base2, by = "id")
 
 ```{r}
 left_join(base1, base2, by = "id")
+
 ```
 `right_join` mantiene las observaciones de la base de la derecha. Si no hay información para estas variables en la base de la izquierda , dejan los valores como valores faltantes:
 
@@ -408,7 +419,13 @@ right_join(base1, base2, by = "id")
 
 ```{r}
 full_join(base1, base2, by = "id")
+
+base_resultante <- full_join(base1, base2, by = "id")
+
+base_resultante <- base_resultante %>% arrange(edad, id)
+base_resultante
 ```
+
 ## Ejemplo 2
 
 Ahora voy a crear unos datos ficticios de colegios y estudiantes. Comienzo por la de colegios:
@@ -436,6 +453,19 @@ estudiantes
 
 ¿Cuál sería la mejor manera de unir estas dos bases de datos?
 
+```{r}
+full_join(estudiantes, info_colegios, by = c("colegio"="cod_colegio"))
+```
+
+```{r}
+left_join(estudiantes, info_colegios, by = c("colegio"="cod_colegio"))
+```
+
+```{r}
+right_join(estudiantes, info_colegios, by = c("colegio"="cod_colegio"))
+```
+
+
 ## Ejemplo 3
 
 1. Cargue a R las bases de datos del panel municipal con los siguientes nombres, según corresponda:
@@ -443,22 +473,79 @@ estudiantes
     + gobierno
     
 ```{r}
-
+gobierno <- read_stata("Datos/PANEL_BUEN_GOBIERNO(2019).dta")
 ```
   
 2. Revise el contenido de una de las bases de datos. ¿Cuál(es) sería(n)  la(s) llave(s) para unir estas bases de datos?
 
+```{r}
+unique(gobierno$ano)
+table(gobierno$ano)
+glimpse(general)
+```
+
+```{r}
+glimpse(gobierno)
+```
+
+```{r}
+intersect(names(general), names(gobierno))
+```
 3. Use inner_join para unir la base general y gobierno. LLame a esta nueva base de datos panel_municipal:
 
 ```{r}
-
+panel_municipal <- inner_join(general, gobierno, by = c("codmpio", "ano"))
 ```
+
+```{r}
+panel_municipal <- left_join(general, gobierno, by = c("codmpio", "ano"))
+```
+
+```{r}
+panel_municipal <- full_join(general, gobierno, by = c("codmpio", "ano"))
+```
+
+```{r}
+panel_municipal <- right_join(general, gobierno, by = c("codmpio", "ano"))
+```
+
 
 4. A la base anterior, una el panel de salud:
 
 ```{r}
 
 ```
+
+## ¿Qué salió mal cuando intentamos unir los dos paneles usando solamente el código del municipio?
+
+En seguida voy a recrear el ejemplo a pequeña escala para ver lo que salió mal:
+
+Primero, creo las dos bases:
+
+```{r}
+codmpio <- rep(c(11001, 5001, 76001), 3)
+municipio <-  rep(c("Bogotá", "Medellín", "Cali"), 3)
+ano <- rep(c(2018, 2019, 2020), each = 3)
+depto <- rep(c("Cundinamarca", "Antioquia", "Valle del Cauca"), 3)
+puntaje <- sample(1:20, 9)
+
+base1 <- tibble(codmpio, municipio, ano, depto)
+base1
+```
+
+```{r}
+base2 <- tibble(codmpio, ano, puntaje)
+base2
+```
+
+Ahora, voy a unir las dos bases usando `inner_join` y solamente el código de municipio:
+
+```{r}
+resultado1 <- inner_join(base1, base2, by = "codmpio")
+resultado1
+```
+
+Entonces, ¿Qué salió mal cuando intentamos unir los dos paneles usando solamente el código del municipio?
 
 # Manejo de variables y observaciones 
 
@@ -493,28 +580,41 @@ La estructura de todas estas funciones es similar:
 ```{r}
 oficial <- filter(saber11_2019,
                   COLE_NATURALEZA == "OFICIAL")
+table(oficial$COLE_NATURALEZA)
 ```
 
 - Ó:
 
 ```{r}
-oficial <- saber11_2019 %>%
+oficial2 <- saber11_2019 %>%
   filter(COLE_NATURALEZA == "OFICIAL") 
 ```
 
 El atajo para el *pipe* es **Shift + Control + M**
 
+```{r}
+oficial2 <- saber11_2019 %>%
+  filter(COLE_NATURALEZA == "OFICIAL") %>% 
+  mutate(PERCENTIL_INGLES = as.character(PERCENTIL_INGLES))
+```
+
+
 - Filtrar por más de una condición:
 
 ```{r}
 estrato_colegio <- saber11_2019 %>% filter(FAMI_ESTRATOVIVIENDA == "Estrato 1", COLE_NATURALEZA == "OFICIAL")
-
+table(estrato_colegio$FAMI_ESTRATOVIVIENDA, estrato_colegio$COLE_NATURALEZA)
 ```
 
 ¿Cómo podría hacer si quiero más de un estrato?: 
 
 ```{r}
+estrato_colegio <- saber11_2019 %>% filter(FAMI_ESTRATOVIVIENDA == "Estrato 1" | FAMI_ESTRATOVIVIENDA == "Estrato 2", COLE_NATURALEZA == "OFICIAL")
 
+estrato_colegio2 <- saber11_2019 %>% filter(FAMI_ESTRATOVIVIENDA %in% c("Estrato 1",  "Estrato 2", "Estrato 3"), COLE_NATURALEZA == "OFICIAL")
+
+
+table(estrato_colegio$FAMI_ESTRATOVIVIENDA, estrato_colegio$COLE_NATURALEZA)
 ```
 
 - Filtrar variables cuantitativas entre dos valores
@@ -526,7 +626,9 @@ summary(saber11_2019$PUNT_GLOBAL)
 Filtren las observaciones que estén entre el primer y el tercer cuartil:
 
 ```{r}
+saber_ric <- saber11_2019 %>% filter(PUNT_GLOBAL >= 207, PUNT_GLOBAL <= 282)
 
+saber_ric2 <- saber11_2019 %>% filter(between(PUNT_GLOBAL, 207, 282))
 ```
 
 ## Seleccionar, borrar, renombrar y reorganizar variables: `select()`
@@ -586,6 +688,8 @@ nse <- saber11_2019 %>%
 ```{r}
 saber11_2019 <- saber11_2019 %>% 
   select(-contains("NSE_"))
+
+saber11_2019 <- saber11_2019 %>% select(-ESTU_TIENEETNIA)
 ```
 
 `everything()`sirve para reorganizar variables, aunque `relocate`, en la versión más reciente de dplyr, cumple esa función de mejor manera:
@@ -597,8 +701,12 @@ saber11_2019 <- saber11_2019 %>%
 saber11_2019 <- saber11_2019 %>% 
   relocate(starts_with("PUNT"))
 
+saber11_2019 <- saber11_2019 %>% relocate(starts_with("FAMI"))
+
 saber11_2019 <- saber11_2019 %>% 
-  relocate(contains("NSE_"), .after = PUNT_INGLES)
+  relocate(contains("LABOR"), .after = PUNT_INGLES)
+
+saber11_2019 <- saber11_2019 %>% relocate(starts_with("FAMI"), starts_with("PUNT"), COLE_BILINGUE)
 ```
 
 `rename()` permite cambiar el nombre de variables, dejando el resto de variables intacto.
@@ -606,7 +714,6 @@ saber11_2019 <- saber11_2019 %>%
 ```{r}
 saber11_2019 <- saber11_2019 %>% 
   rename(tipo_colegio = COLE_CARACTER)
-saber11_2019 <-  rename(saber11_2019, tipo_colegio = COLE_CARACTER)
 ```
 
 *num_range()* permite seleccionar variables que contienen números en su nombre, indicando un rango numérico.
@@ -615,7 +722,7 @@ saber11_2019 <-  rename(saber11_2019, tipo_colegio = COLE_CARACTER)
 - Con base en esta base de datos, creen una base de datos que se llame variables y contenga las variables quE están entre P6010 y P6100.
 
 ```{r}
-personas <- read_delim("Datos/GEIH Diciembre 2019.csv/Área - Características generales (Personas).csv", delim = "|")
+personas <- read_delim("Datos/Area - CaracterIsticas generales (Personas).csv", delim = "|")
 ```
 
 
@@ -643,7 +750,7 @@ variables <- personas %>%
 
 ### Lags y leads en `mutate()`
 
-- Carguen la base de datos *Tasa_de_Cambio_Representativa_del__Mercado_-Historico.csv* y asegúrense que R entienda las fechas de manera correcta.
+- Carguen la base de datos de la trm y asegúrense que R entienda las fechas de manera correcta.
 - Usen `arrange` para organizar las fechas de la más reciente a la más antigua.
 - Creen tres variables en esta base de datos:
   - Un rezago (t-1) de la variable VALOR.
@@ -651,7 +758,7 @@ variables <- personas %>%
   - El valor del periodo siguiente (t+1) de la misma variable
 
 ```{r}
-
+trm <- read_csv("https://www.datos.gov.co/api/views/mcec-87by/rows.csv?accessType=DOWNLOAD")
 ```
 
 ```{r}
@@ -691,7 +798,7 @@ variables <- personas %>%
 
 ## Hacer resumenes de obervaciones: `summarize()`
 
-- `summarize()` collapsa una base de datos en una sola fila que contiene medidas de resumen de la base de datos.
+- `summarize()` colapsa una base de datos en una sola fila que contiene medidas de resumen de la base de datos.
 
 - Las medidas de resumen pueden incluir:
 
@@ -713,7 +820,9 @@ variables <- personas %>%
 Cuando se usa con `rowwise()` crea medidas por fila para las  para las variables incluidas en `rowwise()`.
 
 ```{r}
-
+suma_puntajes <- saber11_2019 %>% 
+  rowwise() %>% 
+  summarize(suma = sum(c(PUNT_LECTURA_CRITICA, PUNT_MATEMATICAS)))
 ```
 
 - `group_by()` y `rowwise()` también se pueden usar para crear variables con `mutate()`.
@@ -722,13 +831,33 @@ Cuando se usa con `rowwise()` crea medidas por fila para las  para las variables
 
 ```
 
-Usen rowwise y mutate para crear una variable que contenga el promedio de los puntajes anteriores.
+Usen rowwise y mutate para crear una variable que contenga el promedio de los puntajes:
 
 ```{r}
 
 ```
 
-- `across` permite usar summarise para un conjunto de variables. Por ejemplo, usemos across para calcular el promedio de los puntajes. 
+- `across` permite usar summarise para un conjunto de variables. Por ejemplo, usemos across para calcular el promedio de cada uno de los puntajes. 
+
+```{r}
+promedios <- saber11_2019 %>% 
+  summarize(across(.cols = starts_with("PUNT"), .fns = mean))
+```
+
+Revisen la ayuda de la función `across` para ver cómo podrían incluir argumentos adicionales para la función mean. Vuelvan a ejecutar la función anterior incluyendo el argumento na.rm = TRUE. 
+
+```{r}
+
+```
+
+¿Cómo se podría ejecutar más de una función? Modifique la función anterior para calcular el promedio y la desviación estándar de cada puntaje.
+
+```{r}
+
+```
+
+
+Realice el procedimiento anterior para cada departamento:
 
 ```{r}
 
@@ -751,7 +880,6 @@ https://dplyr.tidyverse.org/reference/index.html
 ¿Cómo se haría todo esto en base R?:
 ```{r}
 library(help = "dplyr")
-vignette("dplyr")
 vignette("base")
 ```
 
