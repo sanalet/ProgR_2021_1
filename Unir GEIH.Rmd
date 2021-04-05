@@ -11,10 +11,11 @@ library(tidyverse)
 
 ## Si quisieran unir el módulo Área de características generales (personas) y el módulo Área viviendas y hogares. ¿Cuáles variables deberían usar como llave?
 
-
+DIRECTORIO y SECUENCIA_P
 
 ## Si quisieran unir el módulo Área de características generales (personas) y el módulo Área fuerza de trabajo ¿Cuáles variables deberían usar?
 
+DIRECTORIO, SECUENCIA_P Y ORDEN
 
 
 ## Unan los módulos Área de características generales (personas) y Área viviendas y hogares
@@ -30,18 +31,22 @@ fuerza <- read_delim("Datos/GEIH Enero 2021/Area - Fuerza de trabajo.csv", delim
 Unir el módulo de características generales con el de viviendas:
 
 ```{r}
-geih_2021_1 <- 
+geih_2021_1 <- left_join(generales, viv_hogares, by = c("DIRECTORIO", "SECUENCIA_P"))
 ```
 
 Unir el resultado anterior con el módulo de fuerza de trabajo:
 
 ```{r}
-geih_2021_1 <- 
+geih_2021_1 <- left_join(geih_2021_1, fuerza, by = c("DIRECTORIO", "SECUENCIA_P", "ORDEN"))
 ```
 
 ## Cree un loop que le permita unir los módulos restantes:
 
 ```{r}
-
+for (i in seq_along(modulos)){
+  ruta <- paste0("Datos/GEIH Enero 2021/", modulos[i])
+  datos <- read_delim(ruta, delim = ";")
+  geih_2021_1 <- left_join(geih_2021_1, datos, by = c("DIRECTORIO", "SECUENCIA_P", "ORDEN"))
+}
 ```
 

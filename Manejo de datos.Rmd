@@ -744,6 +744,19 @@ variables <- personas %>%
 - También se pueden reconvertir variables, por ejemplo a fecha o a factor, y se pueden crear constantes.
     
 ```{r}
+saber11_2019 <- saber11_2019 %>% 
+  mutate(periodo = "2019", 
+         mate_lect = PUNT_MATEMATICAS + PUNT_LECTURA_CRITICA, 
+         ln_punt_global = log(PUNT_GLOBAL), 
+         ESTU_INSE_INDIVIDUAL = ESTU_INSE_INDIVIDUAL/100, 
+         genero = factor(ESTU_GENERO), 
+         fecha_nac = dmy(ESTU_FECHANACIMIENTO)
+         )
+
+saber11_2019 <- saber11_2019 %>% 
+  arrange(desc(PUNT_GLOBAL)) %>% 
+  mutate(ranking = row_number())
+
 
 ```
     
@@ -762,6 +775,14 @@ trm <- read_csv("https://www.datos.gov.co/api/views/mcec-87by/rows.csv?accessTyp
 ```
 
 ```{r}
+trm <- trm %>% 
+  mutate(fecha_hasta = dmy(VIGENCIAHASTA)) %>% 
+  arrange(fecha_hasta)
+
+trm <- trm %>% mutate(trm_lag1 = lag(VALOR), 
+                      trm_lag2 = lag(VALOR, n = 2), 
+                      trm_lag3 = lag(VALOR, n = 3), 
+                      trm_lead1 = lead(VALOR))
 
 ```
 
@@ -781,13 +802,19 @@ trm <- read_csv("https://www.datos.gov.co/api/views/mcec-87by/rows.csv?accessTyp
 - Use la función `recode` para crear una variable que se llame **privado** que sea igual a 1 para los estudiantes que estudian en colegios privados y 0 para los estudiantes que estudian en colegios públicos Use la variable `COLE_NATURALEZA`.
 
 ```{r}
+table(saber11_2019$COLE_NATURALEZA)
 
+saber11_2019 <- saber11_2019 %>% 
+  mutate(privado = recode(COLE_NATURALEZA, "OFICIAL" = 0, "NO OFICIAL" = 1))
+
+table(saber11_2019$COLE_NATURALEZA, saber11_2019$privado)
 ```
 
 - Use la función `if_else` para crear una variable que se llame **bogota** que sea igual a 1 para los estudiantes que residen en Bogotá y 0 para quienes residen en cualquier otro municipio. Use la variable `ESTU_MCPIO_RESIDE`.
 
 ```{r}
-
+saber11_2019 <- saber11_2019 %>% 
+  mutate(bogota = if_else(ESTU_MCPIO_RESIDE == "BOGOTÁ D.C.", 1, 0))
 ```
 
 - Use la función `case_when` para crear una variable que se llame **estrato** que tenga tres categorías: *bajo* para los estudiantes de estratos 1 y 2, *medio* para los estudiantes de estratos 3 y 4, y *alto* para los estudiantes de estratos 5 y 6. Use la variable `FAMI_ESTRATOVIVIENDA`.

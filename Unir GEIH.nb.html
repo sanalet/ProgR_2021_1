@@ -241,56 +241,121 @@ summary {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5gYGAifQ== -->
-<pre class="r"><code>library(tidyverse)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5cbmBgYCJ9 -->
+<pre class="r"><code>library(tidyverse)
+</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoicGFja2FnZSCRdGlkeXZlcnNlkiB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMC40UmVnaXN0ZXJlZCBTMyBtZXRob2RzIG92ZXJ3cml0dGVuIGJ5ICdkYnBseXInOlxuICBtZXRob2QgICAgICAgICBmcm9tXG4gIHByaW50LnRibF9sYXp5ICAgICBcbiAgcHJpbnQudGJsX3NxbCAgICAgIFxuLS0gQXR0YWNoaW5nIHBhY2thZ2VzIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSB0aWR5dmVyc2UgMS4zLjAgLS1cbnYgZ2dwbG90MiAzLjMuMiAgICAgdiBwdXJyciAgIDAuMy40XG52IHRpYmJsZSAgMy4wLjMgICAgIHYgZHBseXIgICAxLjAuMlxudiB0aWR5ciAgIDEuMS4yICAgICB2IHN0cmluZ3IgMS40LjBcbnYgcmVhZHIgICAxLjMuMSAgICAgdiBmb3JjYXRzIDAuNS4wXG4tLSBDb25mbGljdHMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIHRpZHl2ZXJzZV9jb25mbGljdHMoKSAtLVxueCBkcGx5cjo6ZmlsdGVyKCkgbWFza3Mgc3RhdHM6OmZpbHRlcigpXG54IGRwbHlyOjpsYWcoKSAgICBtYXNrcyBzdGF0czo6bGFnKClcbiJ9 -->
+<pre><code>package 㤼㸱tidyverse㤼㸲 was built under R version 4.0.4Registered S3 methods overwritten by &#39;dbplyr&#39;:
+  method         from
+  print.tbl_lazy     
+  print.tbl_sql      
+-- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+v ggplot2 3.3.2     v purrr   0.3.4
+v tibble  3.0.3     v dplyr   1.0.2
+v tidyr   1.1.2     v stringr 1.4.0
+v readr   1.3.1     v forcats 0.5.0
+-- Conflicts ------------------------------------------ tidyverse_conflicts() --
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <div id="si-quisieran-unir-el-módulo-área-de-características-generales-personas-y-el-módulo-área-viviendas-y-hogares.-cuáles-variables-deberían-usar-como-llave" class="section level2">
 <h2>Si quisieran unir el módulo Área de características generales (personas) y el módulo Área viviendas y hogares. ¿Cuáles variables deberían usar como llave?</h2>
+<p>DIRECTORIO y SECUENCIA_P</p>
 </div>
 <div id="si-quisieran-unir-el-módulo-área-de-características-generales-personas-y-el-módulo-área-fuerza-de-trabajo-cuáles-variables-deberían-usar" class="section level2">
 <h2>Si quisieran unir el módulo Área de características generales (personas) y el módulo Área fuerza de trabajo ¿Cuáles variables deberían usar?</h2>
+<p>DIRECTORIO, SECUENCIA_P Y ORDEN</p>
 </div>
 <div id="unan-los-módulos-área-de-características-generales-personas-y-área-viviendas-y-hogares" class="section level2">
 <h2>Unan los módulos Área de características generales (personas) y Área viviendas y hogares</h2>
 <p>Importar los módulos:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VuZXJhbGVzIDwtIHJlYWRfZGVsaW0oXCJEYXRvcy9HRUlIIEVuZXJvIDIwMjEvQXJlYSAtIENhcmFjdGVyw61zdGljYXMgZ2VuZXJhbGVzIChQZXJzb25hcykuY3N2XCIsIGRlbGltID0gXCI7XCIpXG52aXZfaG9nYXJlcyA8LSByZWFkX2RlbGltKFwiRGF0b3MvR0VJSCBFbmVybyAyMDIxL0FyZWEgLSBWaXZpZW5kYSB5IEhvZ2FyZXMuY3N2XCIsIGRlbGltID0gXCI7XCIpXG5mdWVyemEgPC0gcmVhZF9kZWxpbShcIkRhdG9zL0dFSUggRW5lcm8gMjAyMS9BcmVhIC0gRnVlcnphIGRlIHRyYWJham8uY3N2XCIsIGRlbGltID0gXCI7XCIpXG5gYGAifQ== -->
-<pre class="r"><code>generales &lt;- read_delim(&quot;Datos/GEIH Enero 2021/Area - Características generales (Personas).csv&quot;, delim = &quot;;&quot;)
-viv_hogares &lt;- read_delim(&quot;Datos/GEIH Enero 2021/Area - Vivienda y Hogares.csv&quot;, delim = &quot;;&quot;)
-fuerza &lt;- read_delim(&quot;Datos/GEIH Enero 2021/Area - Fuerza de trabajo.csv&quot;, delim = &quot;;&quot;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZnVlcnphIDwtIHJlYWRfZGVsaW0oXCJEYXRvcy9HRUlIIEVuZXJvIDIwMjEvQXJlYSAtIEZ1ZXJ6YSBkZSB0cmFiYWpvLmNzdlwiLCBkZWxpbSA9IFwiO1wiKVxuXG5gYGAifQ== -->
+<pre class="r"><code>fuerza &lt;- read_delim(&quot;Datos/GEIH Enero 2021/Area - Fuerza de trabajo.csv&quot;, delim = &quot;;&quot;)
+</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUGFyc2VkIHdpdGggY29sdW1uIHNwZWNpZmljYXRpb246XG5jb2xzKFxuICAuZGVmYXVsdCA9IGNvbF9kb3VibGUoKSxcbiAgQVJFQSA9IGNvbF9jaGFyYWN0ZXIoKSxcbiAgUDYyOTBTMSA9IGNvbF9jaGFyYWN0ZXIoKSxcbiAgUDYyNDBTMSA9IGNvbF9jaGFyYWN0ZXIoKSxcbiAgUDYzMTBTMSA9IGNvbF9jaGFyYWN0ZXIoKSxcbiAgTUVTID0gY29sX2NoYXJhY3RlcigpLFxuICBEUFRPID0gY29sX2NoYXJhY3RlcigpLFxuICBmZXhfY18yMDExID0gY29sX251bWJlcigpXG4pXG5TZWUgc3BlYyguLi4pIGZvciBmdWxsIGNvbHVtbiBzcGVjaWZpY2F0aW9ucy5cbiJ9 -->
+<pre><code>Parsed with column specification:
+cols(
+  .default = col_double(),
+  AREA = col_character(),
+  P6290S1 = col_character(),
+  P6240S1 = col_character(),
+  P6310S1 = col_character(),
+  MES = col_character(),
+  DPTO = col_character(),
+  fex_c_2011 = col_number()
+)
+See spec(...) for full column specifications.</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Unir el módulo de características generales con el de viviendas:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VpaF8yMDIxXzEgPC0gXG5gYGAifQ== -->
-<pre class="r"><code>geih_2021_1 &lt;- </code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZ2VpaF8yMDIxXzEgPC0gXG5gYGBcbmBgYCJ9 -->
+<pre class="r"><code>```r
+geih_2021_1 &lt;- </code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+Unir el resultado anterior con el módulo de fuerza de trabajo:
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZ2VpaF8yMDIxXzEgPC0gXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+geih_2021_1 &lt;- </code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+## Cree un loop que le permita unir los módulos restantes:
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yIChpIGluIHNlcV9hbG9uZyhtb2R1bG9zKSl7XG4gIHJ1dGEgPC0gcGFzdGUwKFwiRGF0b3MvR0VJSCBFbmVybyAyMDIxL1wiLCBtb2R1bG9zW2ldKVxuICBkYXRvcyA8LSByZWFkX2RlbGltKHJ1dGEsIGRlbGltID0gXCI7XCIpXG4gIGdlaWhfMjAyMV8xIDwtIGxlZnRfam9pbihnZWloXzIwMjFfMSwgZGF0b3MsIGJ5ID0gYyhcIkRJUkVDVE9SSU9cIiwgXCJTRUNVRU5DSUFfUFwiLCBcIk9SREVOXCIpKVxufVxuYGBgIn0= --&gt;
+
+```r
+for (i in seq_along(modulos)){
+  ruta &lt;- paste0(&quot;Datos/GEIH Enero 2021/&quot;, modulos[i])
+  datos &lt;- read_delim(ruta, delim = &quot;;&quot;)
+  geih_2021_1 &lt;- left_join(geih_2021_1, datos, by = c(&quot;DIRECTORIO&quot;, &quot;SECUENCIA_P&quot;, &quot;ORDEN&quot;))
+}</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Unir el resultado anterior con el módulo de fuerza de trabajo:</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VpaF8yMDIxXzEgPC0gXG5gYGAifQ== -->
-<pre class="r"><code>geih_2021_1 &lt;- </code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="cree-un-loop-que-le-permita-unir-los-módulos-restantes" class="section level2">
-<h2>Cree un loop que le permita unir los módulos restantes:</h2>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlVuaXIgYmFzZXMgR3JhbiBFbmN1ZXN0YSBJbnRlZ3JhZGEgZGUgSG9nYXJlcyINCmF1dGhvcjogIlByb2Zlc29yIFNhbnRpYWdvIFRlbGxleiBDYcOxYXMiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7cn0NCmxpYnJhcnkodGlkeXZlcnNlKQ0KYGBgDQoNCg0KIyMgU2kgcXVpc2llcmFuIHVuaXIgZWwgbcOzZHVsbyDDgXJlYSBkZSBjYXJhY3RlcsOtc3RpY2FzIGdlbmVyYWxlcyAocGVyc29uYXMpIHkgZWwgbcOzZHVsbyDDgXJlYSB2aXZpZW5kYXMgeSBob2dhcmVzLiDCv0N1w6FsZXMgdmFyaWFibGVzIGRlYmVyw61hbiB1c2FyIGNvbW8gbGxhdmU/DQoNCg0KDQojIyBTaSBxdWlzaWVyYW4gdW5pciBlbCBtw7NkdWxvIMOBcmVhIGRlIGNhcmFjdGVyw61zdGljYXMgZ2VuZXJhbGVzIChwZXJzb25hcykgeSBlbCBtw7NkdWxvIMOBcmVhIGZ1ZXJ6YSBkZSB0cmFiYWpvIMK/Q3XDoWxlcyB2YXJpYWJsZXMgZGViZXLDrWFuIHVzYXI/DQoNCg0KDQojIyBVbmFuIGxvcyBtw7NkdWxvcyDDgXJlYSBkZSBjYXJhY3RlcsOtc3RpY2FzIGdlbmVyYWxlcyAocGVyc29uYXMpIHkgw4FyZWEgdml2aWVuZGFzIHkgaG9nYXJlcw0KDQpJbXBvcnRhciBsb3MgbcOzZHVsb3M6DQoNCmBgYHtyfQ0KZ2VuZXJhbGVzIDwtIHJlYWRfZGVsaW0oIkRhdG9zL0dFSUggRW5lcm8gMjAyMS9BcmVhIC0gQ2FyYWN0ZXLDrXN0aWNhcyBnZW5lcmFsZXMgKFBlcnNvbmFzKS5jc3YiLCBkZWxpbSA9ICI7IikNCnZpdl9ob2dhcmVzIDwtIHJlYWRfZGVsaW0oIkRhdG9zL0dFSUggRW5lcm8gMjAyMS9BcmVhIC0gVml2aWVuZGEgeSBIb2dhcmVzLmNzdiIsIGRlbGltID0gIjsiKQ0KZnVlcnphIDwtIHJlYWRfZGVsaW0oIkRhdG9zL0dFSUggRW5lcm8gMjAyMS9BcmVhIC0gRnVlcnphIGRlIHRyYWJham8uY3N2IiwgZGVsaW0gPSAiOyIpDQpgYGANCg0KVW5pciBlbCBtw7NkdWxvIGRlIGNhcmFjdGVyw61zdGljYXMgZ2VuZXJhbGVzIGNvbiBlbCBkZSB2aXZpZW5kYXM6DQoNCmBgYHtyfQ0KZ2VpaF8yMDIxXzEgPC0gDQpgYGANCg0KVW5pciBlbCByZXN1bHRhZG8gYW50ZXJpb3IgY29uIGVsIG3Ds2R1bG8gZGUgZnVlcnphIGRlIHRyYWJham86DQoNCmBgYHtyfQ0KZ2VpaF8yMDIxXzEgPC0gDQpgYGANCg0KIyMgQ3JlZSB1biBsb29wIHF1ZSBsZSBwZXJtaXRhIHVuaXIgbG9zIG3Ds2R1bG9zIHJlc3RhbnRlczoNCg0KYGBge3J9DQoNCmBgYA0KDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlVuaXIgYmFzZXMgR3JhbiBFbmN1ZXN0YSBJbnRlZ3JhZGEgZGUgSG9nYXJlcyINCmF1dGhvcjogIlByb2Zlc29yIFNhbnRpYWdvIFRlbGxleiBDYcOxYXMiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7cn0NCmxpYnJhcnkodGlkeXZlcnNlKQ0KYGBgDQoNCg0KIyMgU2kgcXVpc2llcmFuIHVuaXIgZWwgbcOzZHVsbyDDgXJlYSBkZSBjYXJhY3RlcsOtc3RpY2FzIGdlbmVyYWxlcyAocGVyc29uYXMpIHkgZWwgbcOzZHVsbyDDgXJlYSB2aXZpZW5kYXMgeSBob2dhcmVzLiDCv0N1w6FsZXMgdmFyaWFibGVzIGRlYmVyw61hbiB1c2FyIGNvbW8gbGxhdmU/DQoNCkRJUkVDVE9SSU8geSBTRUNVRU5DSUFfUA0KDQojIyBTaSBxdWlzaWVyYW4gdW5pciBlbCBtw7NkdWxvIMOBcmVhIGRlIGNhcmFjdGVyw61zdGljYXMgZ2VuZXJhbGVzIChwZXJzb25hcykgeSBlbCBtw7NkdWxvIMOBcmVhIGZ1ZXJ6YSBkZSB0cmFiYWpvIMK/Q3XDoWxlcyB2YXJpYWJsZXMgZGViZXLDrWFuIHVzYXI/DQoNCkRJUkVDVE9SSU8sIFNFQ1VFTkNJQV9QIFkgT1JERU4NCg0KDQojIyBVbmFuIGxvcyBtw7NkdWxvcyDDgXJlYSBkZSBjYXJhY3RlcsOtc3RpY2FzIGdlbmVyYWxlcyAocGVyc29uYXMpIHkgw4FyZWEgdml2aWVuZGFzIHkgaG9nYXJlcw0KDQpJbXBvcnRhciBsb3MgbcOzZHVsb3M6DQoNCmBgYHtyfQ0KZ2VuZXJhbGVzIDwtIHJlYWRfZGVsaW0oIkRhdG9zL0dFSUggRW5lcm8gMjAyMS9BcmVhIC0gQ2FyYWN0ZXLDrXN0aWNhcyBnZW5lcmFsZXMgKFBlcnNvbmFzKS5jc3YiLCBkZWxpbSA9ICI7IikNCnZpdl9ob2dhcmVzIDwtIHJlYWRfZGVsaW0oIkRhdG9zL0dFSUggRW5lcm8gMjAyMS9BcmVhIC0gVml2aWVuZGEgeSBIb2dhcmVzLmNzdiIsIGRlbGltID0gIjsiKQ0KZnVlcnphIDwtIHJlYWRfZGVsaW0oIkRhdG9zL0dFSUggRW5lcm8gMjAyMS9BcmVhIC0gRnVlcnphIGRlIHRyYWJham8uY3N2IiwgZGVsaW0gPSAiOyIpDQpgYGANCg0KVW5pciBlbCBtw7NkdWxvIGRlIGNhcmFjdGVyw61zdGljYXMgZ2VuZXJhbGVzIGNvbiBlbCBkZSB2aXZpZW5kYXM6DQoNCmBgYHtyfQ0KZ2VpaF8yMDIxXzEgPC0gbGVmdF9qb2luKGdlbmVyYWxlcywgdml2X2hvZ2FyZXMsIGJ5ID0gYygiRElSRUNUT1JJTyIsICJTRUNVRU5DSUFfUCIpKQ0KYGBgDQoNClVuaXIgZWwgcmVzdWx0YWRvIGFudGVyaW9yIGNvbiBlbCBtw7NkdWxvIGRlIGZ1ZXJ6YSBkZSB0cmFiYWpvOg0KDQpgYGB7cn0NCmdlaWhfMjAyMV8xIDwtIGxlZnRfam9pbihnZWloXzIwMjFfMSwgZnVlcnphLCBieSA9IGMoIkRJUkVDVE9SSU8iLCAiU0VDVUVOQ0lBX1AiLCAiT1JERU4iKSkNCmBgYA0KDQojIyBDcmVlIHVuIGxvb3AgcXVlIGxlIHBlcm1pdGEgdW5pciBsb3MgbcOzZHVsb3MgcmVzdGFudGVzOg0KDQpgYGB7cn0NCmZvciAoaSBpbiBzZXFfYWxvbmcobW9kdWxvcykpew0KICBydXRhIDwtIHBhc3RlMCgiRGF0b3MvR0VJSCBFbmVybyAyMDIxLyIsIG1vZHVsb3NbaV0pDQogIGRhdG9zIDwtIHJlYWRfZGVsaW0ocnV0YSwgZGVsaW0gPSAiOyIpDQogIGdlaWhfMjAyMV8xIDwtIGxlZnRfam9pbihnZWloXzIwMjFfMSwgZGF0b3MsIGJ5ID0gYygiRElSRUNUT1JJTyIsICJTRUNVRU5DSUFfUCIsICJPUkRFTiIpKQ0KfQ0KYGBgDQoNCg==</div>
 
 
 
