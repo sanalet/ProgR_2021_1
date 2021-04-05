@@ -1,0 +1,47 @@
+---
+title: "Unir bases Gran Encuesta Integrada de Hogares"
+author: "Profesor Santiago Tellez Cañas"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+## Si quisieran unir el módulo Área de características generales (personas) y el módulo Área viviendas y hogares. ¿Cuáles variables deberían usar como llave?
+
+
+
+## Si quisieran unir el módulo Área de características generales (personas) y el módulo Área fuerza de trabajo ¿Cuáles variables deberían usar?
+
+
+
+## Unan los módulos Área de características generales (personas) y Área viviendas y hogares
+
+Importar los módulos:
+
+```{r}
+generales <- read_delim("Datos/GEIH Enero 2021/Area - Características generales (Personas).csv", delim = ";")
+viv_hogares <- read_delim("Datos/GEIH Enero 2021/Area - Vivienda y Hogares.csv", delim = ";")
+fuerza <- read_delim("Datos/GEIH Enero 2021/Area - Fuerza de trabajo.csv", delim = ";")
+```
+
+Unir el módulo de características generales con el de viviendas:
+
+```{r}
+geih_2021_1 <- 
+```
+
+Unir el resultado anterior con el módulo de fuerza de trabajo:
+
+```{r}
+geih_2021_1 <- 
+```
+
+## Cree un loop que le permita unir los módulos restantes:
+
+```{r}
+
+```
+
