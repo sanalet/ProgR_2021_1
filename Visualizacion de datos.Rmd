@@ -1,0 +1,892 @@
+---
+title: "Visualización de datos"
+author: "Santiago Tellez Cañas"
+output: 
+  html_notebook: 
+    toc: yes
+    toc_float: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+# Activar paquetes
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(scales)
+```
+
+# Limpiar espacio de trabajo
+
+```{r}
+rm(list = ls())
+```
+
+# Importar datos
+
+```{r}
+saber11_2019 <- read_delim("Datos/saber11_2019.csv", delim = ";")
+```
+
+# Extraer una muestra más pequeña
+
+```{r}
+set.seed(20210412)
+saber11_2019_peq<- saber11_2019 %>% 
+  slice_sample(prop = 0.1)
+mean(saber11_2019_peq$PUNT_GLOBAL)
+```
+
+# Introducción a `ggplot2`
+
+* El paquete `ggplot2` es el mejor paquete para hacer gráficas en R.
+
+* Es el más completo y versátil pues permite personalizar todos los aspectos de las gráficas.
+
+* En este paquete se hacen gráficas por capas. 
+
+* La primera capa indica a R que cree la "plantilla"" de la gráfica, y los datos que se utilizarán.
+
+* La siguiente capa indica el tipo de gráfica, y las características de esa gráfica, incluyendo las variables a graficar.
+
+* Por ejemplo, para hacer un diagrama de dispersión en el puntaje de matemáticas y el índice socioeconómico individual, se usaría la siguiente estructura:
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                     y = PUNT_MATEMATICAS)) +
+  geom_point()
+```
+
+## Aesthetics (aes)
+
+- **Aesthetics (aes)** se refieren a propiedades visuales de los objetos dentro de la gráfica como: variable a graficar, tamaño, forma o color.
+
+- Se pueden modificar manualmente o de acuerdo con los valores de una variable.
+
+    - Para hacerlo manualmente, el argumento se pone por fuera de `aes()`.
+
+    - Para hacerlo en función de una variable se pone como otro argumento dentro de `aes()`.
+
+- Por ejemplo, En un diagrama de dispersión podemos variar las siguientes propiedades estéticas de los puntos:
+
+Nombre argumento  | Rol
+----------------- | -----------------------------------
+color             | Color del punto
+size              | Tamaño del punto
+shape             | Forma del punto
+alpha             | Intensidad del color (i.e. nivel de transparencia)
+
+Por ejemplo, para colocar manualmente triángulos en lugar de círculos, y que sean de color rojo, se haría lo siguiente:
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                     y = PUNT_MATEMATICAS)) +
+  geom_point(color = "Red", shape = 17)
+```
+
+Colores: 
+
+- https://www.nceas.ucsb.edu/~frazier/RSpatialGuides/colorPaletteCheatsheet.pdf
+- http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+Formas: ver la hoja de referencia de `ggplot2`. O ver la siguiente viñeta:
+
+```{r}
+vignette("ggplot2-specs")
+```
+
+Para modificar el color en función de la variable COLE_NATURALEZA, se haría lo siguiente:
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL, 
+                     y = PUNT_MATEMATICAS,
+                     color = COLE_NATURALEZA)) +
+  geom_point()
+```
+
+O para modificar la forma de acuerdo con los valores de la misma variables, se haría de la siguiente manera:
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_MATEMATICAS,
+                           shape = COLE_NATURALEZA)) +
+  geom_point()
+```
+
+## Geoms
+
+- Geoms son objetos geométricos que usa ggplot para realizar las gráficas
+- En ggplot2 hay al menos 50 *geoms*, y hay paquetes que han creado extensiones a ggplot2 que contienen más geoms.
+- A la gráfica anterior, podría agregar una línea de tendencia usando geom_smooth:
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_MATEMATICAS)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+```
+
+En la gráfica anterior, cambien el color de la línea a rojo.
+
+```{r}
+
+```
+
+Otras propiedades que se pueden modificar en la línea son: linetype, size, alpha, entre otros.
+
+## Poner títulos y cambiar nombres de los ejes:
+
+  Para agregar un título o cambiar un nombre a los ejes, se debe agrear la capa `labs`:
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_MATEMATICAS)) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  
+```
+
+##  Cambiar el aspecto general de la gráfica (i.e. themes)
+
+- Las capas `theme_` de `ggplot` proveen algunas funciones estándar para hacer el cambio.
+- Además el paquete `ggthemes` traer otros *themes* para `ggplot`.
+
+```{r}
+
+
+```
+
+```{r}
+# install.packages("ggthemes")
+library(ggthemes)
+
+```
+
+
+## Guardar gráficas:
+
+1. Manualmente.
+2. Usando la función `ggsave()` inmediatamente después de la gráfica. Se debe poner el nombre con la extensión en la que se quiera guardar la gráfica. 
+
+```{r}
+ggsave("dispersión.pdf")
+ggsave("dispersión.jpeg")
+```
+
+## Ejercicio 1
+
+Escriba el código que deben usar para crear un diagrama de dispersión que relacione las variables ESTU_INSE_INDIVIDUAL y PUNT_INGLES. En lugar de puntos use +. El color de los + debe ser distinto para las categorías de la variable COLE_BILINGUE. Incluya una línea de tendencia:
+
+```{r}
+
+```
+
+
+# Geoms (Continuación)
+
+Los geoms más usados para los tipos de gráficos que con mayor frecuencia se usan en análisis de datos son:
+
+Geom              | Tipo de gráfica
+----------------- | ----------------------
+`geom_point()`    | Diagrama de dispersión (dos variables cuantitativas)
+`geom_jitter()`   | Diagrama de dispersión con ruido aleatorio (dos variables cuantitativas)
+`geom_bar()`      | Gráfico de barras (una o dos variables cualitativas)
+`geom_histogram()`| Histograma (una variable cuantitativa)
+`geom_freqpoly()` | Polígono de frecuencias (una variable cuantitativa)
+`geom_density()`  | Versión suavizada del histograma (una variable cuantitativa)
+`geom_line()`     | Gráfico de líneas (útil para mostrar tendencias en el tiempo)
+`geom_area()`     | Rellena áreas debajo de una línea. También es útil para mostrar tendencias.
+`geom_boxplot()`  | Diagrama de cajas y bigotes (una variable cuantitativa y una variable cualitativa)
+`geom_text()`     | Permite agregar texto a una gráfica.
+ 
+
+## Diagrama de Barras:
+
+Realicen un diagrama de barras para la variable FAMI_ESTRATOVIVIENDA.
+
+```{r}
+
+```
+
+Modifiquen el gráfico anterior para que:
+
+- Muestre la frecuencia relativa
+- El color de las barras sea verde.
+
+
+```{r}
+ggplot(data = saber11_2019_peq,
+       mapping = aes(x = FAMI_ESTRATOVIVIENDA, 
+                     y = stat(prop), group = 1)) +
+  geom_bar(fill = "Darkgreen") 
+```
+
+## Gráfica de una distribución de frecuencias ya realizada
+
+Por ejemplo, con la función `count` hago la distribución de frecuencias:
+```{r}
+resumen_estrato <- saber11_2019_peq %>%
+  count(FAMI_ESTRATOVIVIENDA) %>%
+  mutate(Porcentaje = n/sum(n) * 100)
+```
+
+Posteriormente, elaboro la gráfica:
+
+```{r}
+ggplot(data = resumen_estrato,
+       mapping = aes(x = FAMI_ESTRATOVIVIENDA, y = Porcentaje)) +
+  geom_bar(stat = "identity", fill = "Darkgreen", color = "White") 
+```
+
+## Diagrama de barras para dos variables:
+
+```{r}
+table(saber11_2019_peq$DESEMP_INGLES)
+
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= FAMI_ESTRATOVIVIENDA, fill = DESEMP_INGLES)) + 
+  geom_bar() 
+```
+La manera como se muestran las barras se puede modificar con el argumento `position` dentro de `geom_bar`:
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+## Diagrama de cajas para mostrar la distribución de una variable cuantitativa
+
+Otra opción para mostrar la distribución de esta variable sería hacer un diagrama de cajas:
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= "", y = PUNT_LECTURA_CRITICA)) + 
+  geom_boxplot()
+```
+
+Si se quiere horizontal:
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= "", y = PUNT_LECTURA_CRITICA)) + 
+  geom_boxplot() + 
+  coord_flip()
+```
+
+## Diagrama de cajas para relacionar dos variables
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= COLE_AREA_UBICACION, y = PUNT_LECTURA_CRITICA)) + 
+  geom_boxplot()
+```
+
+## Histograma
+
+1. Realicen un histograma de la variable PUNT_GLOBAL.
+
+```{r}
+
+```
+
+
+2. Complementen el histograma con un polígono de frecuencias.
+
+```{r}
+
+```
+
+
+3. Use `geom_density` para generar la densidad de la misma variable.
+
+```{r}
+
+```
+
+4. Complemente la densidad con una línea vertical en la media del puntaje.
+
+```{r}
+
+```
+
+5. Muestre la diferencia en la distribución del puntaje global para hombre y mujeres. 
+
+```{r}
+
+```
+
+## Diagrama de Líneas
+
+Importar la base de datos con la tasa de cambio.
+
+```{r}
+trm <- read_csv("https://www.datos.gov.co/api/views/mcec-87by/rows.csv?accessType=DOWNLOAD")
+```
+
+Asegurarse que la tasa de cambio se entendida como una fecha:
+
+```{r}
+trm <- trm %>% 
+  mutate(VIGENCIAHASTA = dmy(VIGENCIAHASTA))
+class(trm$VIGENCIAHASTA)
+```
+
+Usar `geom_line` para realizar un diagrama de líneas del valor de la TRM durante el tiempo.
+
+```{r}
+ggplot(data = trm, mapping = aes(x = VIGENCIAHASTA, y = VALOR)) + 
+  geom_line() 
+```
+
+Una alternativa, sería hacerlo con `geom_area`:
+
+```{r}
+ggplot(data = trm, mapping = aes(x = VIGENCIAHASTA, y = VALOR)) + 
+  geom_area() 
+```
+
+
+# Cambiar escalas de los ejes o de otros atributos:
+
+## En el caso de variables categóricas:
+
+```{r}
+ggplot(data = saber11_2019_peq,
+       mapping = aes(x = ESTU_GENERO)) +
+  geom_bar() +
+  scale_x_discrete(labels = c("Mujeres", "Hombres"))
+```
+
+Como hemos visto otro argumento útil de esta **escala es `na.translate` para quitar valores faltantes**. Pueden ver otros argumentos buscando en la página de ayuda de la función.
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x= FAMI_ESTRATOVIVIENDA))+
+  geom_bar() +
+  scale_x_discrete(na.translate = FALSE)
+```
+
+
+```{r}
+ggplot(data =saber11_2019_peq, mapping = aes(x=PUNT_GLOBAL, 
+                                             color = ESTU_GENERO))  + 
+  geom_density()  + 
+  scale_color_discrete(labels = c("Femenino", "Masculino")) +
+  labs(x = "Puntaje Global", 
+       y = "Densidad", 
+       color = "Género del estudiante")
+  
+```
+
+La función scale sirve para cambiar los colores también. El cambio de colores se puede hacer manualmente, o de acuerdo con una paleta de colores. Pueden encontrar más información acá: http://www.sthda.com/english/wiki/ggplot2-colors-how-to-change-colors-automatically-and-manually
+
+Manualmente:
+```{r}
+ggplot(data = saber11_2019, aes(x = FAMI_ESTRATOVIVIENDA, fill = DESEMP_INGLES)) + 
+  geom_bar(position = "fill") + 
+  scale_fill_manual(values = c("Red", "Blue", "Green", "Yellow", "Pink"))
+```
+
+De acuerdo con una paleta de colores
+
+```{r}
+ggplot(data = saber11_2019, aes(x = FAMI_ESTRATOVIVIENDA, fill = DESEMP_INGLES)) + 
+  geom_bar(position = "fill") + 
+  scale_fill_brewer(palette = "Oranges", direction = -1)
+
+```
+
+## En el caso de variables cuantitativas:
+
+El argumento `breaks` dentro de `scale_*_continuous` permite indicar en donde se deben poner las marcas en los ejes.
+
+```{r}
+ggplot(data = saber11_2019_peq,
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                     y = PUNT_INGLES)) +
+         geom_point() +
+  geom_smooth(method = "lm") + 
+  geom_text(label = "Línea de Tendencia", x = 80, y = 90, size = 5, colour = "Darkgreen", vjust = 0) +
+  scale_x_continuous(
+    breaks = seq(from = 20, to = 80, by = 5)) +
+  scale_y_continuous(
+    breaks = c(30, 40, 50, 60, 62, 70, 80, 90, 100))
+```
+
+Otros argumentos útiles en este caso son `limits` para mostrar solamente un rango de datos y `labels` para indicar el nombre o expresión de las etiquetas, y también para indicar algún formato proveniente del paquete `scales`.
+
+```{r}
+ggplot(data = saber11_2019_peq,
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                     y = PUNT_INGLES)) +
+         geom_point() +
+  scale_x_continuous(
+    breaks = seq(from = 20, to = 80, by = 5), 
+    limits = c(70, 85)) +
+  scale_y_continuous(
+    breaks = c(30, 40, 50, 60, 70, 80, 90, 100))
+
+ggplot(data = saber11_2019_peq,
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                     y = PUNT_INGLES)) +
+         geom_point() +
+  scale_x_continuous(
+    breaks = seq(from = 20, to = 80, by = 5)) +
+  scale_y_continuous(
+    breaks = c(30, 40, 50, 60, 70, 80, 90, 100),
+    limits = c(0, 35))
+```
+
+### Etiquetas de los ejes:
+
+El paquete **scales** tiene algunas funciones útiles para modificar las etiquetas de los valores en los ejes. Estas funciones incluyen `label_number`, `label_comma`,  `label_numbersi` `label_dollar`, `label_percent` y `label_date`:
+
+Percent:
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = FAMI_ESTRATOVIVIENDA, 
+                                              y = stat(prop), 
+                                              group = 1)) + 
+  geom_bar()
+```
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = FAMI_ESTRATOVIVIENDA, 
+                                              y = stat(prop), 
+                                              group = 1)) + 
+  geom_bar() + 
+  scale_x_discrete(na.translate = FALSE) + 
+  scale_y_continuous(labels = label_percent())
+```
+
+Number y comma:
+
+```{r}
+ggplot(data = saber11_2019_peq,
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                     y = PUNT_INGLES)) +
+         geom_point() +
+  scale_x_continuous(
+    breaks = seq(from = 20, to = 80, by = 5), 
+    labels = label_number()) +
+  scale_y_continuous(
+    breaks = c(30, 40, 50, 60, 70, 80, 90, 100), 
+    labels = label_comma(decimal.mark = ",", big.mark = "."))
+```
+
+Dollar:
+
+```{r}
+ggplot(data = trm, mapping = aes(x = VIGENCIAHASTA, y = VALOR)) + 
+  geom_line() +
+  scale_y_continuous(labels = label_dollar(prefix = "COP $", big.mark = ".", decimal.mark = ","))
+```
+
+Fecha:
+
+```{r}
+ggplot(data = trm, mapping = aes(x = fecha_hasta, y = VALOR)) + 
+  geom_line() +
+  scale_y_continuous(labels = label_dollar()) +
+  scale_x_date(date_breaks = "5 years", , date_labels = "%Y-%B")
+
+help(strptime)
+```
+
+```{r}
+ggplot(data = trm, mapping = aes(x = fecha_hasta, y = VALOR)) + 
+  geom_line() +
+  scale_y_continuous(labels = label_dollar()) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y %B", 
+               limits = c(as_date("2020-01-01"),as_date("2020-09-25")))
+```
+
+```{r}
+ggplot(data = trm, mapping = aes(x = fecha_hasta, y = VALOR)) + 
+  geom_line() +
+  scale_y_continuous(labels = dollar, limits = c(3150, NA)) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%B", 
+               limits = c(as_date("2020-01-01"), as_date("2020-09-22"))) +
+  geom_vline(xintercept = as_date("2020-03-06"), color = "Red")
+```
+
+
+
+# Elaboración de gráficas de manera separada para grupos conformados por una o más variables
+
+Hay dos opciones para esto: `facet_wrap` o `facet_grid`
+
+En el caso de una variable:
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = PUNT_GLOBAL)) + 
+  geom_density() + 
+  facet_wrap(vars(FAMI_ESTRATOVIVIENDA))
+```
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = PUNT_GLOBAL)) + 
+  geom_density() + 
+  facet_wrap(vars(COLE_NATURALEZA, COLE_AREA_UBICACION))
+```
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = PUNT_GLOBAL)) + 
+  geom_density() + 
+  facet_grid(rows = vars(COLE_NATURALEZA, COLE_AREA_UBICACION))
+```
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = PUNT_GLOBAL)) + 
+  geom_density() + 
+  facet_grid(rows = vars(FAMI_ESTRATOVIVIENDA), 
+             cols = vars(COLE_AREA_UBICACION))
+```
+
+# Agregar texto a las gráficas:
+ 
+## Texto que no depende de variables:
+
+### Alternativa 1:
+
+```{r}
+ggplot(data = saber11_2019_peq,
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                     y = PUNT_INGLES)) +
+         geom_point() +
+  geom_smooth(method = "lm") + 
+  geom_text(label = "Línea de Tendencia", x = 80, y = 90, size = 4, colour = "Darkgreen", hjust = 0.5) 
+```
+
+### Alternativa 2:
+
+```{r}
+ggplot(data = saber11_2019_peq,
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                     y = PUNT_INGLES)) +
+         geom_point() +
+  geom_smooth(method = "lm") + 
+  annotate(geom = "text", 
+           label = "Línea de Tendencia", x = 20, y = 90, size = 4, 
+           colour = "Darkgreen", hjust = 0.1)
+```
+
+## Si depende del nombre de una variable:
+
+```{r}
+departamentos <- saber11_2019 %>% 
+  group_by(ESTU_DEPTO_RESIDE) %>% 
+  summarize(across(c(ESTU_INSE_INDIVIDUAL, PUNT_GLOBAL), 
+                   .fns = mean, na.rm = TRUE))
+```
+
+```{r}
+ggplot(data = departamentos, mapping = aes(x = ESTU_INSE_INDIVIDUAL, 
+                                           y = PUNT_GLOBAL)) + 
+  geom_point()
+```
+
+
+```{r}
+ggplot(data = departamentos, mapping = aes(x = ESTU_INSE_INDIVIDUAL, 
+                                           y = PUNT_GLOBAL, 
+                                           label = ESTU_DEPTO_RESIDE)) + 
+  geom_text()
+```
+
+ 
+```{r}
+ggplot(data = departamentos, mapping = aes(x = ESTU_INSE_INDIVIDUAL, 
+                                           y = PUNT_GLOBAL, 
+                                           label = ESTU_DEPTO_RESIDE)) + 
+  geom_text() + 
+  geom_point()
+```
+ 
+```{r}
+ggplot(data = departamentos, mapping = aes(x = ESTU_INSE_INDIVIDUAL, 
+                                           y = PUNT_GLOBAL, 
+                                           label = ESTU_DEPTO_RESIDE)) + 
+  geom_label() + 
+  geom_point()
+```
+ 
+ 
+```{r}
+# install.packages("ggrepel")
+library(ggrepel)
+``` 
+
+```{r}
+ggplot(data = departamentos, mapping = aes(x = ESTU_INSE_INDIVIDUAL, 
+                                           y = PUNT_GLOBAL, 
+                                           label = ESTU_DEPTO_RESIDE)) + 
+  geom_text_repel()
+```
+
+  
+```{r}
+ggplot(data = departamentos, mapping = aes(x = ESTU_INSE_INDIVIDUAL, 
+                                           y = PUNT_GLOBAL, 
+                                           label = ESTU_DEPTO_RESIDE)) + 
+  geom_text_repel() + 
+  geom_point()
+```
+
+```{r}
+ggplot(data = departamentos, mapping = aes(x = ESTU_INSE_INDIVIDUAL, 
+                                           y = PUNT_GLOBAL, 
+                                           label = ESTU_DEPTO_RESIDE)) + 
+  geom_label_repel() + 
+  geom_point()
+```
+
+
+```{r}
+ggplot(data = departamentos, mapping = aes(x = ESTU_INSE_INDIVIDUAL, 
+                                           y = PUNT_GLOBAL, 
+                                           label = ESTU_DEPTO_RESIDE)) + 
+  geom_text_repel(color = "Darkgreen", size = 2, ) + 
+  geom_point()
+```
+
+
+## Agregar etiquetas a una diagrama de barras:
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = ESTU_GENERO)) +
+  geom_bar() + 
+  geom_text(aes(label = percent(..count../sum(..count..))), 
+             stat = "count", position = position_stack(1.1), 
+            color = "Black")
+```
+
+
+# Personalización avanzada de las gráficas:
+
+Para cambiar cualquier aspecto particular de una gráfica que no tenga que ver con los datos se debe agregar la capa `theme()`. Esta capa tiene un amplio número de argumentos que contiene aspectos que se pueden modificar:
+
+```{r}
+help(theme)
+theme_get()
+```
+
+Algunas funciones relacionadas a `theme()` son:
+
+- `theme_get()` para conocer las características actuales. 
+- `theme_set()` para crear un nuevo theme. 
+- `theme_update()` para cambiar alguna característica del theme actual.
+
+## Cambiar la posición de la leyenda con el tipo de colegio
+
+Partamos de esta gráfica:
+
+```{r}
+
+ggplot(data = saber11_2019_peq, mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                         y = PUNT_INGLES,
+                         color = COLE_NATURALEZA)) +
+  geom_jitter() +
+  labs(title = "En los colegios privados
+       tiende a haber mejor desempeño y mejor nivel
+       socioeconómico",
+       x = "Nivel Socioeconómico",
+       y = "Puntaje de Inglés", color = "Tipo de Colegio")
+
+```
+
+Por defecto la leyenda del atributo color es colocada en el lado derecho. Para modificar esta posición, se usaría la capa `theme()` con el argumento `legend.position`, así:
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                         y = PUNT_INGLES,
+                         color = COLE_NATURALEZA)) +
+  geom_jitter() +
+  labs(title = "En los colegios privados
+       tiende a haber mejor desempeño y mejor nivel
+       socioeconómico",
+       x = "Nivel Socioeconómico",
+       y = "Puntaje de Inglés", color = "Tipo de Colegio") +
+  theme(legend.position = "none")
+```
+
+Para conocer que otros aspectos se pueden cambiar en la leyenda se puede volver a explorar la ayuda de `theme()`. Ahí, por ejemplo, se observa que los valores posibles de este argumento son: "none", "left", "right", "bottom", "top". 
+
+## Modificar texto
+
+Partamos de la siguiente gráfica:
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                         y = PUNT_INGLES,
+                         color = COLE_NATURALEZA)) +
+  geom_jitter() +
+  labs(title = "Al aumentar el nivel socioeconómico el puntaje de inglés tiende a aumentar ",
+       subtitle = "Los colegios privados tienden a tener mayores puntajes y mejor nivel socioeconómico",
+       x = "Nivel Socioeconómico", y = "Punta de Inglés",
+       color = "Tipo de Colegio")
+```
+
+Para modificar el tipo de letra de todo el gráfico se usa el argumento `text` dentro de la capa `theme()`:
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                         y = PUNT_INGLES,
+                         color = COLE_NATURALEZA)) +
+  geom_jitter() +
+  labs(title = "Al aumentar el nivel socioeconómico el puntaje de inglés tiende a aumentar ",
+       subtitle = "Los colegios privados tienden a tener mayores puntajes y mejor nivel socioeconómico",
+       x = "Nivel Socioeconómico", y = "Punta de Inglés",
+       color = "Tipo de Colegio") +
+  theme(text = element_text(family = "serif", face = "bold"))
+vignette("ggplot2-specs")
+```
+
+Para ver información sobre fuentes vea: http://www.cookbook-r.com/Graphs/Fonts/ o busquen la viñeta
+
+```{r}
+vignette("ggplot2-specs")
+```
+
+Si se quiere cambiar el tipo de texto solamente para un elemento del gráfico, por ejemplo, el título del gráfico, el eje x o el eje y, es necesario señalar cuál es el elemento de manera explícita dentro de la capa `theme()`. Por ejemplo:
+
+```{r, eval=FALSE}
+# Para el título del gráfico
+theme(plot.title = element_text(family = "serif"))
+# Para el título del eje x
+theme(axis.title.x = element_text(family = "serif"))
+# Para el título del eje y
+theme(axis.title.y = element_text(family = "serif"))
+```
+
+Además del tipo de letra se puede cambiar el tamaño, con el argumento `size =`, el color con el argumento `color =` y la apariencia con el argumento `face =`. Las opciones en este caso son *plain*, *bold* para negrilla, *italic* para cursiva, *bold.italic* para negrilla y cursiva.
+
+También se puede cambiar el centrado horizontal (`hjust`) y el centrado vertical (`vjust`), casos en los cuales se pone un número de 0 a 1 según donde se quiera poner el texto, entre otros.
+
+Por ejemplo, para poner negrilla y centrar el título, la función anterior se complementa de la siguiente manera: 
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                         y = PUNT_INGLES,
+                         color = COLE_NATURALEZA)) +
+  geom_jitter() +
+  labs(title = "Al aumentar el nivel socioeconómico el puntaje de inglés tiende a aumentar ",
+       subtitle = "Los colegios privados tienden a tener mayores puntajes y mejor nivel socioeconómico",
+       x = "Nivel Socioeconómico", y = "Punta de Inglés",
+       color = "Tipo de Colegio") +
+  theme(text = element_text(family = "serif"), 
+        plot.title = element_text(face = "bold",
+                                  hjust = 0.5))
+```
+
+¿Qué argumento se usaría para poner negrilla al título de la leyenda?
+
+## Modificar el fondo de la gráfica:
+
+Para quitar la cuadrícula del fondo de la gráfica se puede usar el siguiente código:
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                         y = PUNT_INGLES,
+                         color = COLE_NATURALEZA)) +
+  geom_jitter() +
+  labs(title = "Al aumentar el nivel socioeconómico el puntaje de inglés tiende a aumentar ",
+       subtitle = "Los colegios privados tienden a tener mayores puntajes y mejor nivel socioeconómico",
+       x = "Nivel Socioeconómico", 
+       y = "Punta de Inglés",
+       color = "Tipo de Colegio") +
+  theme(text = element_text(family = "serif"), 
+        plot.title = element_text(face = "bold", hjust = 0.5), 
+        panel.grid = element_blank())
+```
+
+Para quitar el fondo de la gráfica se puede usar el siguiente código:
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                         y = PUNT_INGLES,
+                         color = COLE_NATURALEZA)) +
+  geom_jitter() +
+  labs(title = "Al aumentar el nivel socioeconómico el puntaje de inglés tiende a aumentar ",
+       subtitle = "Los colegios privados tienden a tener mayores puntajes y mejor nivel socioeconómico",
+       x = "Nivel Socioeconómico", 
+       y = "Punta de Inglés",
+       color = "Tipo de Colegio") +
+  theme(text = element_text(family = "serif"), 
+        plot.title = element_text(face = "bold", hjust = 0.5), 
+        panel.grid = element_blank(),
+        panel.background = element_blank())
+```
+
+O para cambiarlo:
+
+```{r}
+ggplot(data = saber11_2019_peq, mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                         y = PUNT_INGLES,
+                         color = COLE_NATURALEZA)) +
+  geom_jitter() +
+  labs(title = "Al aumentar el nivel socioeconómico el puntaje de inglés tiende a aumentar ",
+       subtitle = "Los colegios privados tienden a tener mayores puntajes y mejor nivel socioeconómico",
+       x = "Nivel Socioeconómico", 
+       y = "Punta de Inglés",
+       color = "Tipo de Colegio") +
+  theme(text = element_text(family = "serif"), 
+        plot.title = element_text(face = "bold", hjust = 0.5),
+        panel.grid = element_blank(),
+        panel.background = element_rect(fill = "lightcyan"))
+```
+
+
+## theme_update
+
+```{r}
+
+theme_update(text = element_text(family = "mono", face = "italic"))
+
+ggplot(data = saber11_2019_peq, mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                         y = PUNT_INGLES,
+                         color = COLE_NATURALEZA)) +
+  geom_jitter() +
+  labs(title = "Al aumentar el nivel socioeconómico el puntaje de inglés tiende a aumentar ",
+       subtitle = "Los colegios privados tienden a tener mayores puntajes y mejor nivel socioeconómico",
+       x = "Nivel Socioeconómico", y = "Punta de Inglés",
+       color = "Tipo de Colegio")
+```
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= FAMI_ESTRATOVIVIENDA, fill = DESEMP_INGLES)) + 
+  geom_bar(position = "stack") + 
+  scale_x_discrete(na.translate = FALSE)
+```
+
+## Incluir distintas gráficas en una misma imagen:
+
+Instalar  y activar paquetes:
+
+```{r}
+# install.packages("ggpubr")
+library(ggpubr)
+```
+
+Generar gráficas y asignarlas a un objeto:
+
+```{r}
+a <- ggplot(data = saber11_2019_peq, mapping = aes(x = FAMI_ESTRATOVIVIENDA)) + 
+  geom_bar()
+a
+b <- ggplot(data = saber11_2019_peq, mapping = aes(x = PUNT_GLOBAL)) + 
+  geom_histogram()
+b
+ggarrange(a, b)  
+```

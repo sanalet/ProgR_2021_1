@@ -823,6 +823,7 @@ saber11_2019 <- saber11_2019 %>%
 
 ```
 
+
 ## Hacer resumenes de obervaciones: `summarize()`
 
 - `summarize()` colapsa una base de datos en una sola fila que contiene medidas de resumen de la base de datos.
@@ -852,26 +853,26 @@ suma_puntajes <- saber11_2019 %>%
   summarize(suma = sum(c(PUNT_LECTURA_CRITICA, PUNT_MATEMATICAS)))
 ```
 
-- `group_by()` y `rowwise()` también se pueden usar para crear variables con `mutate()`.
+- `group_by()` y `rowwise()` también se pueden usar para crear variables con `mutate()`. Usen `group_by()` para crear una variable que contenga el promedio del puntaje global para el municipio en el que se encuentran ubicado el colegio del estudiante:
 
 ```{r}
 
 ```
 
-Usen rowwise y mutate para crear una variable que contenga el promedio de los puntajes:
+Usen `rowwise()` y `mutate` para crear una variable que contenga el promedio de los puntajes:
 
 ```{r}
 
 ```
 
-- `across` permite usar summarise para un conjunto de variables. Por ejemplo, usemos across para calcular el promedio de cada uno de los puntajes. 
+- `across` permite usar `summarize()` para un conjunto de variables. Por ejemplo, usemos `across` para calcular el promedio de cada uno de los puntajes. 
 
 ```{r}
 promedios <- saber11_2019 %>% 
   summarize(across(.cols = starts_with("PUNT"), .fns = mean))
 ```
 
-Revisen la ayuda de la función `across` para ver cómo podrían incluir argumentos adicionales para la función mean. Vuelvan a ejecutar la función anterior incluyendo el argumento na.rm = TRUE. 
+Revisen la ayuda de la función `across` para ver cómo podrían incluir argumentos adicionales para la función `mean`. Vuelvan a ejecutar la función anterior incluyendo el argumento `na.rm = TRUE`. 
 
 ```{r}
 
