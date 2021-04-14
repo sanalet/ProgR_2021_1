@@ -813,6 +813,8 @@ table(saber11_2019$COLE_NATURALEZA, saber11_2019$privado)
 - Use la función `if_else` para crear una variable que se llame **bogota** que sea igual a 1 para los estudiantes que residen en Bogotá y 0 para quienes residen en cualquier otro municipio. Use la variable `ESTU_MCPIO_RESIDE`.
 
 ```{r}
+n_distinct(saber11_2019$ESTU_MCPIO_RESIDE)
+
 saber11_2019 <- saber11_2019 %>% 
   mutate(bogota = if_else(ESTU_MCPIO_RESIDE == "BOGOTÁ D.C.", 1, 0))
 ```
@@ -820,7 +822,18 @@ saber11_2019 <- saber11_2019 %>%
 - Use la función `case_when` para crear una variable que se llame **estrato** que tenga tres categorías: *bajo* para los estudiantes de estratos 1 y 2, *medio* para los estudiantes de estratos 3 y 4, y *alto* para los estudiantes de estratos 5 y 6. Use la variable `FAMI_ESTRATOVIVIENDA`.
 
 ```{r}
+table(saber11_2019$FAMI_ESTRATOVIVIENDA)
+unique(saber11_2019$FAMI_ESTRATOVIVIENDA)
 
+saber11_2019 <- saber11_2019 %>% 
+  mutate(estrato = case_when(
+    FAMI_ESTRATOVIVIENDA %in% c("Estrato 1", "Estrato 2") ~ "Bajo", 
+    FAMI_ESTRATOVIVIENDA %in% c("Estrato 3", "Estrato 4") ~ "Medio",
+    FAMI_ESTRATOVIVIENDA %in% c("Estrato 5", "Estrato 6") ~ "Alto", 
+    FAMI_ESTRATOVIVIENDA == "Sin Estrato" ~ "Sin Estrato"
+  ))
+
+table(saber11_2019$FAMI_ESTRATOVIVIENDA, saber11_2019$estrato, useNA = c("ifany"))
 ```
 
 
@@ -837,14 +850,59 @@ saber11_2019 <- saber11_2019 %>%
   - Frecuencias y proporciones para valores lógicos, entre otros.
 
 ```{r}
-
+resumen <- saber11_2019 %>% summarize(Media = mean(PUNT_GLOBAL))
 ```
+
+```{r}
+resumen <- saber11_2019 %>% summarize(Media = mean(PUNT_GLOBAL), 
+                                      Desviación = sd(PUNT_GLOBAL))
+```
+
+```{r}
+resumen <- saber11_2019 %>% summarize(Media_PG = mean(PUNT_GLOBAL), 
+                                      Desviación_PG = sd(PUNT_GLOBAL), 
+                                      Media_PM = mean(PUNT_MATEMATICAS), 
+                                      Desviación_PM = sd(PUNT_MATEMATICAS))
+```
+
 
 - Cuando se usa con `group_by()` crea medidas de resumen para los grupos incluidos en `group_by()`.
 
 ```{r}
-
+resumen_genero <- saber11_2019 %>% 
+  group_by(ESTU_GENERO) %>% 
+  summarize(Media_PG = mean(PUNT_GLOBAL))
 ```
+
+```{r}
+resumen_estrato <- saber11_2019 %>% 
+  group_by(FAMI_ESTRATOVIVIENDA) %>% 
+  summarize(Media_PG = mean(PUNT_GLOBAL), 
+            Desviación_PG = sd(PUNT_GLOBAL))
+```
+
+```{r}
+resumen_departamento <- saber11_2019 %>% 
+  group_by(COLE_DEPTO_UBICACION) %>% 
+  summarize(Media_PG = mean(PUNT_GLOBAL), 
+            Desviación_PG = sd(PUNT_GLOBAL)) %>% 
+  arrange(desc(Media_PG))
+```
+
+```{r}
+resumen_privado_rural <- saber11_2019 %>% 
+  group_by(COLE_NATURALEZA, COLE_AREA_UBICACION) %>% 
+  summarize(Media_PG = mean(PUNT_GLOBAL), 
+            Desviación_PG = sd(PUNT_GLOBAL))
+```
+
+```{r}
+resumen_completo_natu <- saber11_2019 %>% 
+  group_by(COLE_NATURALEZA) %>% 
+  summarize(summary(PUNT_GLOBAL))
+```
+
+
 Cuando se usa con `rowwise()` crea medidas por fila para las  para las variables incluidas en `rowwise()`.
 
 ```{r}
@@ -853,16 +911,26 @@ suma_puntajes <- saber11_2019 %>%
   summarize(suma = sum(c(PUNT_LECTURA_CRITICA, PUNT_MATEMATICAS)))
 ```
 
-- `group_by()` y `rowwise()` también se pueden usar para crear variables con `mutate()`. Usen `group_by()` para crear una variable que contenga el promedio del puntaje global para el municipio en el que se encuentran ubicado el colegio del estudiante:
+- `group_by()` y `rowwise()` también se pueden usar para crear variables con `mutate()`. Usen `group_by()` para crear una variable que contenga el promedio del puntaje global para el municipio en el que se encuentra ubicado el colegio del estudiante:
 
 ```{r}
-
+saber11_2019 <- saber11_2019 %>% 
+  group_by(COLE_MCPIO_UBICACION) %>% 
+  mutate(media_mcpio = mean(PUNT_GLOBAL, na.rm = TRUE)) %>% 
+  relocate(COLE_MCPIO_UBICACION, media_mcpio) %>% 
+  arrange(COLE_MCPIO_UBICACION)
 ```
 
 Usen `rowwise()` y `mutate` para crear una variable que contenga el promedio de los puntajes:
 
 ```{r}
-
+saber11_2019 <- saber11_2019 %>% 
+  rowwise() %>% 
+  mutate(media_punt = mean(c(PUNT_MATEMATICAS, PUNT_LECTURA_CRITICA, 
+                             PUNT_C_NATURALES, PUNT_SOCIALES_CIUDADANAS,
+                             PUNT_INGLES))) %>% 
+  relocate(media_punt, starts_with("PUNT")) %>% 
+  ungroup()
 ```
 
 - `across` permite usar `summarize()` para un conjunto de variables. Por ejemplo, usemos `across` para calcular el promedio de cada uno de los puntajes. 
@@ -875,20 +943,38 @@ promedios <- saber11_2019 %>%
 Revisen la ayuda de la función `across` para ver cómo podrían incluir argumentos adicionales para la función `mean`. Vuelvan a ejecutar la función anterior incluyendo el argumento `na.rm = TRUE`. 
 
 ```{r}
+promedios <- saber11_2019 %>% 
+  summarize(across(.cols = starts_with("PUNT"), .fns = mean, na.rm = TRUE))
+```
 
+```{r}
+promedios <- saber11_2019 %>% 
+  summarize(across(.cols = starts_with("PUNT"), .fns = ~ mean(.x, na.rm = TRUE)))
+```
+
+```{r}
+prom_num <- saber11_2019 %>% 
+  summarise(across(.cols = where(is.numeric), .fns = mean, na.rm = TRUE))
 ```
 
 ¿Cómo se podría ejecutar más de una función? Modifique la función anterior para calcular el promedio y la desviación estándar de cada puntaje.
 
 ```{r}
-
+promedios <- saber11_2019 %>% 
+  summarize(across(.cols = starts_with("PUNT"), 
+                   .fns = list(media = mean, desviacion = sd), na.rm = TRUE))
 ```
+
 
 
 Realice el procedimiento anterior para cada departamento:
 
 ```{r}
-
+promedios <- saber11_2019 %>% 
+  group_by(COLE_DEPTO_UBICACION) %>% 
+  summarize(across(.cols = starts_with("PUNT"), 
+                   .fns = list(media = mean, desviacion = sd),
+                   na.rm = TRUE))
 ```
 
 ### Función `count()`
