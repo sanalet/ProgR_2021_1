@@ -6,7 +6,7 @@ output:
     toc: yes
     toc_float: yes
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 # Activar paquetes
@@ -55,6 +55,13 @@ mean(saber11_2019_peq$PUNT_GLOBAL)
 ```{r}
 ggplot(data = saber11_2019_peq, 
        mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                     y = PUNT_MATEMATICAS))
+```
+
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
                      y = PUNT_MATEMATICAS)) +
   geom_point()
 ```
@@ -84,7 +91,7 @@ Por ejemplo, para colocar manualmente triángulos en lugar de círculos, y que s
 ggplot(data = saber11_2019_peq, 
        mapping = aes(x = ESTU_INSE_INDIVIDUAL,
                      y = PUNT_MATEMATICAS)) +
-  geom_point(color = "Red", shape = 17)
+  geom_point(color = "Red", shape = 24, fill = "lightblue")
 ```
 
 Colores: 
@@ -114,7 +121,8 @@ O para modificar la forma de acuerdo con los valores de la misma variables, se h
 ggplot(data = saber11_2019_peq, 
        mapping = aes(x = ESTU_INSE_INDIVIDUAL,
                            y = PUNT_MATEMATICAS,
-                           shape = COLE_NATURALEZA)) +
+                           shape = COLE_NATURALEZA, 
+                          color = COLE_NATURALEZA)) +
   geom_point()
 ```
 
@@ -129,14 +137,48 @@ ggplot(data = saber11_2019_peq,
        mapping = aes(x = ESTU_INSE_INDIVIDUAL,
                            y = PUNT_MATEMATICAS)) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth()
 
 ```
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_MATEMATICAS, 
+                     color = COLE_NATURALEZA)) +
+  geom_point() +
+  geom_smooth()
+```
+
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_MATEMATICAS)) +
+  geom_point() +
+  geom_smooth(method = "lm", aes(color = COLE_NATURALEZA))
+```
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_MATEMATICAS)) +
+  geom_point(aes(color = COLE_NATURALEZA)) +
+  geom_smooth(method = "lm")
+```
+```{r}
+ggplot(data = saber11_2019_peq) +
+  geom_point(mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_MATEMATICAS))
+```
+
 
 En la gráfica anterior, cambien el color de la línea a rojo.
 
 ```{r}
-
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_MATEMATICAS)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "Red")
 ```
 
 Otras propiedades que se pueden modificar en la línea son: linetype, size, alpha, entre otros.
@@ -151,6 +193,8 @@ ggplot(data = saber11_2019_peq,
                            y = PUNT_MATEMATICAS)) +
   geom_point() +
   geom_smooth(method = "lm") + 
+  labs(title = "El puntaje de matemáticas es mayor ", subtitle = "para mayores niveles socioeconómicos", x = "Nivel socioeconómico individual", y = "Puntaje Matemáticas en Saber 11", 
+       caption = "Fuente: Saber 11 2019 2")
   
 ```
 
@@ -160,13 +204,29 @@ ggplot(data = saber11_2019_peq,
 - Además el paquete `ggthemes` traer otros *themes* para `ggplot`.
 
 ```{r}
-
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_MATEMATICAS)) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  labs(title = "El puntaje de matemáticas es mayor ", subtitle = "para mayores niveles socioeconómicos", x = "Nivel socioeconómico individual", y = "Puntaje Matemáticas en Saber 11", 
+       caption = "Fuente: Saber 11 2019 2") + 
+  theme_classic()
 
 ```
 
 ```{r}
 # install.packages("ggthemes")
 library(ggthemes)
+
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_MATEMATICAS)) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  labs(title = "El puntaje de matemáticas es mayor ", subtitle = "para mayores niveles socioeconómicos", x = "Nivel socioeconómico individual", y = "Puntaje Matemáticas en Saber 11", 
+       caption = "Fuente: Saber 11 2019 2") + 
+  theme_clean()
 
 ```
 
@@ -181,11 +241,36 @@ ggsave("dispersión.pdf")
 ggsave("dispersión.jpeg")
 ```
 
+```{r}
+grafica <- ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_MATEMATICAS)) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  labs(title = "El puntaje de matemáticas es mayor ", subtitle = "para mayores niveles socioeconómicos", x = "Nivel socioeconómico individual", y = "Puntaje Matemáticas en Saber 11", 
+       caption = "Fuente: Saber 11 2019 2") + 
+  theme_classic()
+
+grafica
+
+ggsave( "dispersion2.pdf", grafica)
+```
+
+
+
 ## Ejercicio 1
 
 Escriba el código que deben usar para crear un diagrama de dispersión que relacione las variables ESTU_INSE_INDIVIDUAL y PUNT_INGLES. En lugar de puntos use +. El color de los + debe ser distinto para las categorías de la variable COLE_BILINGUE. Incluya una línea de tendencia:
 
 ```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_INGLES)) +
+  geom_point(aes(color = COLE_BILINGUE), shape = 3) +
+  geom_smooth(method = "lm") + 
+  labs(title = "El puntaje de ingles es mayor", subtitle =  
+       "para mayores niveles socieconomicos", x = "Nivel socioeconomico individual", y = "Puntaje Ingles en saber 11", caption = "Santiago Lopez Rodriguez")+
+  theme_economist_white()
 
 ```
 
