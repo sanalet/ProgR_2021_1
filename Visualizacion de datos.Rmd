@@ -5,8 +5,6 @@ output:
   html_notebook: 
     toc: yes
     toc_float: yes
-editor_options: 
-  chunk_output_type: console
 ---
 
 # Activar paquetes
@@ -102,7 +100,7 @@ Colores:
 Formas: ver la hoja de referencia de `ggplot2`. O ver la siguiente viñeta:
 
 ```{r}
-vignette("ggplot2-specs")
+# vignette("ggplot2-specs")
 ```
 
 Para modificar el color en función de la variable COLE_NATURALEZA, se haría lo siguiente:
@@ -236,12 +234,12 @@ ggplot(data = saber11_2019_peq,
 1. Manualmente.
 2. Usando la función `ggsave()` inmediatamente después de la gráfica. Se debe poner el nombre con la extensión en la que se quiera guardar la gráfica. 
 
-```{r}
+```{r, , message=FALSE}
 ggsave("dispersión.pdf")
 ggsave("dispersión.jpeg")
 ```
 
-```{r}
+```{r, message=FALSE}
 grafica <- ggplot(data = saber11_2019_peq, 
        mapping = aes(x = ESTU_INSE_INDIVIDUAL,
                            y = PUNT_MATEMATICAS)) +
@@ -268,8 +266,8 @@ ggplot(data = saber11_2019_peq,
                            y = PUNT_INGLES)) +
   geom_point(aes(color = COLE_BILINGUE), shape = 3) +
   geom_smooth(method = "lm") + 
-  labs(title = "El puntaje de ingles es mayor", subtitle =  
-       "para mayores niveles socieconomicos", x = "Nivel socioeconomico individual", y = "Puntaje Ingles en saber 11", caption = "Santiago Lopez Rodriguez")+
+  labs(title = "El puntaje de inglés es mayor", subtitle =  
+       "para mayores niveles socioeconómicos", x = "Nivel socioeconómico individual", y = "Puntaje Inglés en saber 11", caption = "Santiago López Rodríguez")+
   theme_economist_white()
 
 ```
@@ -580,7 +578,7 @@ ggplot(data = trm, mapping = aes(x = VIGENCIAHASTA, y = VALOR)) +
 Fecha:
 
 ```{r}
-ggplot(data = trm, mapping = aes(x = fecha_hasta, y = VALOR)) + 
+ggplot(data = trm, mapping = aes(x = VIGENCIAHASTA, y = VALOR)) + 
   geom_line() +
   scale_y_continuous(labels = label_dollar()) +
   scale_x_date(date_breaks = "5 years", , date_labels = "%Y-%B")
@@ -589,7 +587,7 @@ help(strptime)
 ```
 
 ```{r}
-ggplot(data = trm, mapping = aes(x = fecha_hasta, y = VALOR)) + 
+ggplot(data = trm, mapping = aes(x = VIGENCIAHASTA, y = VALOR)) + 
   geom_line() +
   scale_y_continuous(labels = label_dollar()) +
   scale_x_date(date_breaks = "5 years", date_labels = "%Y %B", 
@@ -597,7 +595,7 @@ ggplot(data = trm, mapping = aes(x = fecha_hasta, y = VALOR)) +
 ```
 
 ```{r}
-ggplot(data = trm, mapping = aes(x = fecha_hasta, y = VALOR)) + 
+ggplot(data = trm, mapping = aes(x = VIGENCIAHASTA, y = VALOR)) + 
   geom_line() +
   scale_y_continuous(labels = dollar, limits = c(3150, NA)) +
   scale_x_date(date_breaks = "1 month", date_labels = "%B", 
@@ -697,11 +695,13 @@ ggplot(data = departamentos, mapping = aes(x = ESTU_INSE_INDIVIDUAL,
   geom_text() + 
   geom_point()
 ```
+
  
 ```{r}
-ggplot(data = departamentos, mapping = aes(x = ESTU_INSE_INDIVIDUAL, 
-                                           y = PUNT_GLOBAL, 
-                                           label = ESTU_DEPTO_RESIDE)) + 
+ggplot(data = departamentos, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                     y = PUNT_GLOBAL, 
+                     label = ESTU_DEPTO_RESIDE)) + 
   geom_label() + 
   geom_point()
 ```
