@@ -5,6 +5,8 @@ output:
   html_notebook: 
     toc: yes
     toc_float: yes
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Activar paquetes
@@ -264,7 +266,7 @@ Escriba el código que deben usar para crear un diagrama de dispersión que rela
 ggplot(data = saber11_2019_peq, 
        mapping = aes(x = ESTU_INSE_INDIVIDUAL,
                            y = PUNT_INGLES)) +
-  geom_point(aes(color = COLE_BILINGUE), shape = 3) +
+  geom_point(aes(color = COLE_BILINGUE)) +
   geom_smooth(method = "lm") + 
   labs(title = "El puntaje de inglés es mayor", subtitle =  
        "para mayores niveles socioeconómicos", x = "Nivel socioeconómico individual", y = "Puntaje Inglés en saber 11", caption = "Santiago López Rodríguez")+
@@ -290,13 +292,26 @@ Geom              | Tipo de gráfica
 `geom_boxplot()`  | Diagrama de cajas y bigotes (una variable cuantitativa y una variable cualitativa)
 `geom_text()`     | Permite agregar texto a una gráfica.
  
+```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = ESTU_INSE_INDIVIDUAL,
+                           y = PUNT_INGLES)) +
+  geom_jitter(aes(color = COLE_BILINGUE)) +
+  geom_smooth(method = "lm") + 
+  labs(title = "El puntaje de inglés es mayor", subtitle =  
+       "para mayores niveles socioeconómicos", x = "Nivel socioeconómico individual", y = "Puntaje Inglés en saber 11", caption = "Santiago López Rodríguez")+
+  theme_economist_white()
+```
+ 
 
 ## Diagrama de Barras:
 
 Realicen un diagrama de barras para la variable FAMI_ESTRATOVIVIENDA.
 
 ```{r}
-
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x = FAMI_ESTRATOVIVIENDA)) + 
+  geom_bar()
 ```
 
 Modifiquen el gráfico anterior para que:
@@ -309,7 +324,7 @@ Modifiquen el gráfico anterior para que:
 ggplot(data = saber11_2019_peq,
        mapping = aes(x = FAMI_ESTRATOVIVIENDA, 
                      y = stat(prop), group = 1)) +
-  geom_bar(fill = "Darkgreen") 
+  geom_bar(fill = "Darkgreen", color = "black") 
 ```
 
 ## Gráfica de una distribución de frecuencias ya realizada
@@ -329,6 +344,13 @@ ggplot(data = resumen_estrato,
   geom_bar(stat = "identity", fill = "Darkgreen", color = "White") 
 ```
 
+```{r}
+ggplot(data = resumen_estrato,
+       mapping = aes(x = FAMI_ESTRATOVIVIENDA, y = Porcentaje)) +
+  geom_col()
+```
+
+
 ## Diagrama de barras para dos variables:
 
 ```{r}
@@ -341,11 +363,15 @@ ggplot(data = saber11_2019_peq,
 La manera como se muestran las barras se puede modificar con el argumento `position` dentro de `geom_bar`:
 
 ```{r}
-
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= FAMI_ESTRATOVIVIENDA, fill = DESEMP_INGLES)) + 
+  geom_bar(position = "dodge") 
 ```
 
 ```{r}
-
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= FAMI_ESTRATOVIVIENDA, fill = DESEMP_INGLES)) + 
+  geom_bar(position = "fill")
 ```
 
 ## Diagrama de cajas para mostrar la distribución de una variable cuantitativa
@@ -380,6 +406,21 @@ ggplot(data = saber11_2019_peq,
 1. Realicen un histograma de la variable PUNT_GLOBAL.
 
 ```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= PUNT_GLOBAL)) + 
+    geom_histogram()
+
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= PUNT_GLOBAL)) + 
+    geom_histogram(binwidth = 5)
+
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= PUNT_GLOBAL)) + 
+    geom_histogram(bins = 73)
+
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= PUNT_GLOBAL)) + 
+  geom_histogram(fill= "red", color = "blue")
 
 ```
 
@@ -387,26 +428,45 @@ ggplot(data = saber11_2019_peq,
 2. Complementen el histograma con un polígono de frecuencias.
 
 ```{r}
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= PUNT_GLOBAL)) + 
+    geom_histogram(bins = 73, fill = "lightgreen", color = "black") + 
+  geom_freqpoly(bins = 73, color = "red")
 
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= PUNT_GLOBAL)) + 
+      geom_freqpoly(bins = 73, color = "red")
 ```
 
 
 3. Use `geom_density` para generar la densidad de la misma variable.
 
 ```{r}
-
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= PUNT_GLOBAL)) + 
+      geom_density(bins = 73)
 ```
 
 4. Complemente la densidad con una línea vertical en la media del puntaje.
 
 ```{r}
-
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= PUNT_GLOBAL)) + 
+      geom_density() + 
+  geom_vline(xintercept = 
+               mean(saber11_2019_peq$PUNT_GLOBAL, na.rm = TRUE),
+             color = "purple") +
+  geom_vline(xintercept = 
+               median(saber11_2019_peq$PUNT_GLOBAL, na.rm = TRUE),
+             color = "green")
 ```
 
 5. Muestre la diferencia en la distribución del puntaje global para hombre y mujeres. 
 
 ```{r}
-
+ggplot(data = saber11_2019_peq, 
+       mapping = aes(x= PUNT_GLOBAL)) + 
+      geom_density(aes(color = COLE_NATURALEZA)) 
 ```
 
 ## Diagrama de Líneas
@@ -429,14 +489,14 @@ Usar `geom_line` para realizar un diagrama de líneas del valor de la TRM durant
 
 ```{r}
 ggplot(data = trm, mapping = aes(x = VIGENCIAHASTA, y = VALOR)) + 
-  geom_line() 
+  geom_line(color = "purple") 
 ```
 
 Una alternativa, sería hacerlo con `geom_area`:
 
 ```{r}
 ggplot(data = trm, mapping = aes(x = VIGENCIAHASTA, y = VALOR)) + 
-  geom_area() 
+  geom_area(fill = "blue") 
 ```
 
 
