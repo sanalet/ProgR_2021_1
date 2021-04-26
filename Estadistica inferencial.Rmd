@@ -1,0 +1,249 @@
+---
+title: "Estadística Inferencial"
+author: "Santiago Tellez Cañas"
+output: 
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+
+## Activar paquetes 
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(srvyr)
+library(descr)
+library(scales)
+```
+
+## Cargar datos 
+
+```{r message=FALSE, warning=FALSE}
+saber11_2019 <- read_delim("Datos/saber11_2019.csv", delim = ";")
+```
+
+## Estadística inferencial
+
+### Pruebas de hipótesis e intervalos de confianza para la media
+
+#### Manualmente:
+
+Es usual seguir un procedimiento como el siguiente para construir un intervalo de confianza alrededor de la media con un nivel de confianza del 95%:
+
+```{r}
+
+# Estimaban la media, la deviación estandar y el tamaño de la muestra
+media <- mean(saber11_2019$PUNT_LECTURA_CRITICA, na.rm = TRUE)
+media
+desviacion <- sd(saber11_2019$PUNT_LECTURA_CRITICA, na.rm = TRUE)
+n <- length(saber11_2019$PUNT_LECTURA_CRITICA)
+n
+
+# Se estimaba el error estándar
+error <- desviacion/sqrt(n)
+error
+
+# Buscabamos el estadístico t asociado a una probabilidad de alpha/2 en la parte inferior de la distribución:
+?distributions
+?qt
+
+t <- qt(p = 0.025, df = n-1)
+t
+
+# Calculabamos el margen de error
+me <- abs(t) * error
+
+# Estimabamos el intervalo:
+intervalo <- c(media-me, media+me)
+
+intervalo
+
+```
+
+Para hacer una prueba de hipótesis se seguía el siguiente procedimiento:
+
+```{r}
+# Establecíamos una hipótesis nula que es lo que quisiéramos desvirtuar que está pasando en la población. Por ejemplo, que la media del puntaje global en la población es igual a 50. 
+H0 <- 50
+
+# Calculamos un estadístico t:
+
+t <- (media - H0) / error
+t
+
+# Aunque con este estadístico t podríamos resolver la prueba de hipótesis al comparar con el valor crítico (en el caso de una prueba al 95% este valor es 1.96 aproximadamente), también era usual buscar el valor p asociado a ese estadístico t, y lo multiplicábamos por 2, en el caso de una prueba de dos colas:
+
+p <- pt(q = -t, df = n - 1, lower.tail = TRUE) * 2
+p
+
+```
+
+#### De manera más eficiente:
+
+La función `t.test()` permite construir intervalos de confianza y hacer pruebas de hipótesis sobre la media. Por ejemplo, si quisiera construir el intervalo de confianza sobre la media del puntaje de lectura crítica usaría la misma función:
+
+
+```{r}
+t.test(saber11_2019$PUNT_LECTURA_CRITICA)
+```
+
+Por defecto R hace el intervalo a un nivel de confianza del 95%. Si quisiera cambiar el nivel de confianza, usaría el argumento `conf.level`. Por ejemplo, para hacer la prueba a un nivel de confianza del 99%, modificaría `t.test` de la siguiente manera:
+
+```{r}
+t.test(saber11_2019$PUNT_LECTURA_CRITICA, conf.level = 0.99, mu = 51)
+```
+
+Ahora, esa misma función provee la información para hacer una prueba de hipótesis. Por defecto, la hipótesis nula que usa la función es que la media poblacional es 0. Si quisiera hacer una prueba de hipótesis usando como hipótesis nula que la media del puntaje de lectura crítica es 51, usaría la siguiente función:
+
+```{r}
+t.test(saber11_2019$PUNT_LECTURA_CRITICA, mu = 50)
+```
+
+Noten que los resultados obtenidos con `t.test` son equivalentes a los resultados obtenidos manualmente en la sección anterior.
+
+### Pruebas de hipótesis e intervalos de confianza para la diferencia entre las medias de dos grupos
+
+`t.test` también provee información para construir intervalos de confianza y hacer pruebas de hipótesis sobre la diferencia entre las medias de dos grupos. En ese caso, la función debe tener al menos dos argumentos: la variable de interés y la variable que conforma los grupos. Por ejemplo, para construir el intervalo de confianza y preparar la información para hacer la prueba de hipótesis respecto de la diferencia en la media del puntaje de lectura crítica entre estudiantes de colegios públicos y privados, usaría la siguiente función:
+
+```{r}
+# options(scipen = 999)
+t.test(saber11_2019$PUNT_LECTURA_CRITICA ~ saber11_2019$COLE_NATURALEZA)
+```
+
+```{r}
+56.06385 -  51.82777 
+```
+
+```{r}
+t.test(saber11_2019$PUNT_LECTURA_CRITICA ~ saber11_2019$COLE_NATURALEZA, 
+       conf.level = 0.99)
+```
+```{r}
+t.test(saber11_2019$PUNT_LECTURA_CRITICA ~ saber11_2019$COLE_NATURALEZA, 
+       conf.level = 0.99, alternative = c("greater"))
+```
+```{r}
+t.test(saber11_2019$PUNT_LECTURA_CRITICA ~ saber11_2019$COLE_NATURALEZA, 
+       conf.level = 0.99, mu = 3, alternative = c("greater"))
+```
+
+Esta función también provee información para hacer la prueba de hipótesis. En este caso, por defecto la hipótesis nula es que la diferencia en las medias poblacionales es igual a 0. 
+
+### Pruebas de hipótesis e intervalos de confianza para la proporción
+
+La función `prop.test` permite construir intervalos de confianza y hacer pruebas de hipótesis sobre una proporción. En el caso de esta función, debo calcular primero el número de casos de interés y el total de casos, para introducir esa información dentro de la función. 
+
+Por ejemplo, para construir un intervalo de confianza sobre la proporción de mujeres debo primero calcular el número de mujeres en la muestra y el total de personas en la muestra:
+
+```{r}
+table(saber11_2019$ESTU_GENERO)
+nrow(saber11_2019)
+```
+Luego incluyo esa información dentro de `prop.test`. El primer argumento es el número de mujeres y el segundo argumento es el número de personas en la muestra:
+
+```{r}
+prop.test(29610, 54621)
+```
+
+```{r}
+prop.test(29610, 54621, alternative = c("greater"))
+```
+
+Esa misma función provee la información para hacer la prueba de hipótesis. Por defecto, la hipótesis nula es que la proporción poblacional es 0,5. Si quiero cambiar esa hipótesis nula, modifico el argumento `p`. Por ejemplo, para indicar que la hipótesis nula es que la proporción de mujeres es 0.56, modificaría la función de la siguiente manera:
+
+```{r}
+prop.test(29610, 54621, p = 0.56)
+```
+
+### Pruebas de hipótesis e intervalos de confianza para la diferencia entre las proporciones de dos grupos
+
+`prop.test` también permite construir intervalos de confianza y realizar pruebas de hipótesis sobre la diferencia entre las proporciones de dos grupos. Por ejemplo, podría interesarme saber si la proporción de mujeres en colegios públicos y privados es diferente. Para esto debo incluir dos argumentos. El primero incluye el número de mujeres en cada grupo de interés, en este caso colegios públicos y privados, y el segundo argumento contiene el total de personas en cada grupo de interés. Esta información la tendría que extraer inicialmente creando una tabla cruzada:
+
+```{r}
+table(saber11_2019$ESTU_GENERO, saber11_2019$COLE_NATURALEZA)
+margin.table(table(saber11_2019$ESTU_GENERO, saber11_2019$COLE_NATURALEZA), 2)
+```
+
+Luego incluyo la información en `prop.test`:
+
+```{r}
+prop.test(c(6620, 22990), c(13141, 41466))
+```
+
+```{r}
+0.5037668 - 0.5544301
+```
+
+
+Esta función también provee información para hacer la prueba de hipótesis. En este caso, por defecto la hipótesis nula es que la diferencia en las proporciones poblacionales es igual a 0. 
+
+## Uso de pesos en encuestas realizadas con diseños muestrales complejos:
+
+Las herramientas anteriores suponen que hubo un muestreo aleatorio simple. Sin embargo, buena parte de los datos con los que se trabaja en aplicaciones económicas no parte de ese muestreo sencillo sino de diseños muestrales más complejos. Ese es el caso, por ejemplo, de las encuestas realizadas por el DANE, como la Gran Encuestra Integrada de Hogares. En ese caso el muestreo es: probabilístico, multietápico, estratificado, de conglomerados desiguales y autoponderado.
+
+Cuando el diseño del muestreo es complejo como en este caso hay dos consecuencias: (1) los errores estándar tradicionales no representan adecuadamente la variación de los estadísticos muestrales, y (2) los estimadores muestrales tienen un sesgo. Lo primero ocurre porque la existencia de estratos hace que haya más variación en la información, mientras que los conglomerados hacen que haya menos variación. 
+
+Lo segundo ocurre porque el resultado del muestreo complejo es que, si bien antes de tomar la muestra cada individuo en la población tiene la misma probabilidad de ser seleccionado en la muestra, después de haber tomado la muestra la probabilidad de que cada individuo haya sido seleccionado es diferente. Esto implica que cada individuo representa a miembros de la población con una probabilidad diferente. 
+
+R y otros programas estadísticos proveen funciones y comandos que permiten abordar las dos consecuencias. En el caso de R el paquete `srvyr` construido sobre el paquete `survey` provee un completo conjunto de funciones para el efecto que además siguen la idea de tidyverse. En este paquete siempre se debe comenzar por indicar cuál fue el diseño muestral, indicando cuál fue la unidad principal de muestreo, y las unidades secundarias, en caso que existan, e igualmente, indicando si hubo estratos y cuáles fueron. Para esto es necesario entender muy bien el diseño del muestreo y la estructura de los datos y las variables que representan los estratos y los conglomerados. También se debe indicar cuál es el peso de cada observación en el cálculo de la población. En las encuestas del DANE este peso se conoce como factor de expansión. 
+
+Para mostrar lo anterior, en particular el cálculo de los pesos, vamos a usar la Gran Encuesta Integrada de Hogares del DANE para el mes de diciembre de 2019. Simplemente, voy a importar los datos del módulo de características generales personas para las áreas metropolitanas. Comienzo por importar los datos.
+
+```{r}
+Personas <- read_delim(file = "Datos/Area - CaracterIsticas generales (Personas).csv", delim = "|")
+```
+
+Revisen el contenido de la base de datos, en particular el de la variable fex_c_2011., de dos maneras. Abra el archivo original en un editor de texto y revise cómo la importó R. ¿Qué hay de diferente en la variable entre estas dos maneras de explorarla?
+
+Para corregir el error anterior, es necesario usar el argumento locale dentro de read_delim:
+
+```{r}
+Personas <- read_delim(file = "Datos/Area - CaracterIsticas generales (Personas).csv", delim = "|", locale = locale(decimal_mark = ","))
+```
+
+A continuación calculo la proporción de hombres y mujeres en la muestra:
+
+```{r}
+prop.table(table(Personas$P6020))
+```
+
+Ahora convierto las variables P6020 en dummy e indico a R que los entienda como factores
+
+```{r}
+Personas <- Personas %>% mutate(mujer = recode(P6020, `1` = 0, `2` = 1))
+prop.table(table(Personas$mujer))
+```
+
+Enseguida, uso la función `as_survey_design()` para indicar las características del diseño muestral. `ids` indica cuál es la unidad principal de muestreo. En este caso es AREA. `weights` indica cuáles son las ponderaciones, en este caso la variable fex_c_2011. 
+
+```{r}
+geih <- Personas %>% 
+  as_survey_design(ids= AREA, 
+                   weights = fex_c_2011 )
+```
+
+Ahora, uso las funciones las funciones `survey_mean` y `survey_total` para calcular la proporción y el número estimado de mujeres y hombres en la población, respectivamente:  
+
+```{r}
+resultado <- geih %>% summarize(Prop_Mujeres = survey_mean(mujer), 
+                                Total_Mujeres = survey_total(mujer))
+
+resultado
+```
+
+`ggplot` permite trabajar con estas ponderaciones, de la siguiente manera:
+
+
+```{r}
+ggplot(Personas, aes(x = as.factor(mujer), weight = fex_c_2011)) + 
+  geom_bar() + 
+  scale_y_continuous(label = label_number())
+```
+
+```{r}
+
+ggplot(Personas, aes(x = as.factor(mujer), y = stat(prop), group = 1, weight = fex_c_2011)) + 
+  geom_bar() + 
+  scale_y_continuous(label = label_percent())
+```

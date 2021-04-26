@@ -1,0 +1,320 @@
+---
+title: "Estadística Descriptiva"
+author: "Santiago Tellez Cañas"
+output: 
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+# Activar paquetes
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(descr)
+library(modeest)
+library(GGally)
+library(stargazer)
+library(psych)
+library(pastecs)
+```
+
+# Limpiar espacio de trabajo
+
+```{r}
+rm(list = ls())
+```
+
+# Importar datos
+
+```{r}
+saber11_2019 <- read_delim("Datos/saber11_2019.csv", delim = ";")
+```
+
+
+## Estadística descriptiva
+
+1. R provee funciones para realizar distribuciones de frecuencia, y para calcular medidas de tendencia central, de posición, de dispersión y de asociación.
+2. También hay funciones para analizar varias variables y/o varias medidas al mismo tiempo. 
+3. Además hay funciones que crean tablas con estadísticas descriptivas e incluso con algunas pruebas estadísticas listas para publicar. 
+4. La función `summarize` del paquete dplyr también es útil para hacer descripción de varias variables, y para hacer descripciones por grupos. 
+
+### Distribuciones de Frecuencia
+
+* Las funciones table, prop.table y margin.table permiten construir  distribuciones de frecuencia (por pasos). 
+
+* Otros paquetes como *descr* contienen funciones que permiten crear las tablas de manera más sencilla. 
+
+#### Distribuciones de Frecuencia: usando table, prop.table y margin.table
+
+* *table* crea las frecuencias absolutas para una o dos variables. Por ejemplo, para la variable COLE_AREA_UBICACION:
+
+```{r}
+f_absoluta <- table(saber11_2019$COLE_AREA_UBICACION)
+f_absoluta
+```
+
+* *prop.table* crea las frecuencias relativas. Esta función solamente funcionan sobre un objeto que sea una tabla.
+
+```{r}
+f_relativa <- prop.table(table(
+  saber11_2019$COLE_AREA_UBICACION))
+f_relativa
+```
+* Para unir las dos tablas anteriores podría usarse la función `cbind`:
+
+```{r}
+distribucion1 <- cbind(Absoluta = f_absoluta, Relativa = f_relativa)
+distribucion1
+```
+
+* Para crear una tabla cruzada entre COLE_AREA_UBICACION y COLE_NATURALEZA :
+
+```{r}
+f_absoluta_con <- table(saber11_2019$COLE_AREA_UBICACION,
+                    saber11_2019$COLE_NATURALEZA)
+f_absoluta_con
+```
+
+* *prop.table* crea las frecuencias relativas respecto de la fila o de la columna. Esta función solamente funciona sobre un objeto que sea una tabla. Para la fila:
+
+```{r}
+f_relativa_fila <- prop.table(f_absoluta_con, margin = 1)
+f_relativa_fila
+```
+* Para la columna:
+
+```{r}
+f_relativa_col <- prop.table(f_absoluta_con, margin = 2)
+round(f_relativa_col, 4) * 100
+```
+
+* Respecto del total:
+
+```{r}
+f_relativa_total <- prop.table(f_absoluta_con)
+round(f_relativa_total, 4) * 100
+```
+
+* *margin.table* produce los totales de fila o columna. Se puede aplicar sobre frecuencias absolutas o relativas. Para el caso de fila se debe usar el argumento margin=1 y en el de la columna margin=2. Para frecuencias absolutas:
+
+```{r}
+total_fila <- margin.table(f_absoluta_con, margin = 1)
+total_fila
+total_columna <- margin.table(f_absoluta_con, margin = 2)
+total_columna
+f_absoluta_con
+distribucion_conjunta <- cbind(f_absoluta_con, Total = total_fila)
+distribucion_conjunta
+total <- margin.table(distribucion_conjunta, margin = 2)
+total
+distribucion_conjunta <- rbind(distribucion_conjunta, Total = total)
+distribucion_conjunta
+```
+
+Para frecuencias relativas:
+
+```{r}
+total_fila_rel <- margin.table(f_relativa_fila, margin = 1)
+total_fila_rel
+total_columna_rel <- margin.table(f_relativa_col, margin = 2)
+total_columna_rel
+```
+
+### Distribuciones de Frecuencia: usando el paquete descr
+
+En el caso de una variable se usa la función `freq`:
+
+```{r}
+distribucion2 <- freq(saber11_2019$COLE_AREA_UBICACION, plot = FALSE)
+distribucion2
+write_csv(as.data.frame(distribucion2), "distribución.csv")
+```
+
+En el caso de dos variables se usa la función `crosstab`:
+
+```{r}
+# QUitar notación científica
+options(scipen = 999)
+
+crosstab(saber11_2019$COLE_AREA_UBICACION,
+         saber11_2019$COLE_NATURALEZA, plot = FALSE)
+```
+¿Qué argumento puedo usar para que la tabla calcule frecuencias relativas conjuntas?
+
+Como vimos antes, esto depende de si las frecuencias relativas se calculan sobre la fila, la columna o el total. Para esto hay tres argumentos: prop.r, prop.c y prop.t, respectivamente. Por ejemplo, para calcular la frecuencia respecto de la fila:
+
+```{r}
+conjunta <- crosstab(saber11_2019$COLE_AREA_UBICACION,
+         saber11_2019$COLE_NATURALEZA, plot = FALSE, 
+         prop.t = TRUE, prop.c = TRUE, prop.r = TRUE)
+conjunta
+```
+
+### Estadística Descriptiva: Medidas de Tendencia Central y Posición
+
+Medida  | Función en R
+--------|-------------
+Media   | `mean()`
+Mediana | `median()`
+Moda    | `mfv()` \footnote{`mfv` hace parte del paquete `modeest`, el cual debe ser instalado.}
+
+```{r}
+mean(saber11_2019$PUNT_INGLES, na.rm = TRUE)
+median(saber11_2019$PUNT_GLOBAL, na.rm = TRUE)
+mfv(saber11_2019$PUNT_GLOBAL)
+```
+
+
+`quantile()` permite calcular percentiles para las variables. 
+
+```{r}
+quantile(saber11_2019$PUNT_GLOBAL, na.rm = TRUE)
+```
+
+Con todas estas funciones es necesario usar el argumento `na.rm=TRUE` para que R remueva los valores faltantes antes de hacer los cálculos, a menos que estén seguros que la variable no tiene datos faltantes.
+
+### Estadística Descriptiva: Medidas de Dispersión
+
+Medida  | Función en R
+--------|-------------
+Rango   | `range()` o `max()-min()`
+Rango Intercuartílico     | `IQR()`
+Varianza | `var()`
+Desviación Estándar    | `sd()` 
+
+En estas funciones también es necesario usar el argumento `na.rm=TRUE`.
+
+```{r}
+range(saber11_2019$PUNT_GLOBAL, na.rm=TRUE)
+max(saber11_2019$PUNT_GLOBAL, na.rm=TRUE) - min(saber11_2019$PUNT_GLOBAL, na.rm=TRUE)
+IQR(saber11_2019$PUNT_GLOBAL, na.rm=TRUE)
+
+var(saber11_2019$PUNT_GLOBAL,na.rm=TRUE)
+sd(saber11_2019$PUNT_GLOBAL, na.rm=TRUE)
+# Coeficiente de variación
+sd(saber11_2019$PUNT_GLOBAL, na.rm=TRUE)/mean(saber11_2019$PUNT_GLOBAL, na.rm=TRUE) * 100
+```
+
+
+### Estadística Descriptiva: Medidas de Asociación
+
+Medida  | Función en R
+--------|-------------
+Covarianza| `cov()` 
+Correlación| `cor()`
+
+```{r}
+cov(saber11_2019$PUNT_GLOBAL, saber11_2019$ESTU_INSE_INDIVIDUAL, use = "complete.obs")
+sum(is.na(saber11_2019$ESTU_INSE_INDIVIDUAL))
+```
+
+```{r}
+cor(saber11_2019$PUNT_GLOBAL, saber11_2019$ESTU_INSE_INDIVIDUAL, use = "complete.obs")
+
+cor(saber11_2019$PUNT_GLOBAL, saber11_2019$PUNT_MATEMATICAS, use = "complete.obs")
+```
+
+
+En este caso, en lugar de usar `na.rm=TRUE` se debe usar el argumento `use`, el cual tiene las siguientes opciones: "everything", "all.obs", "complete.obs", "na.or.complete", o "pairwise.complete.obs". Si `cor` se aplica sobre varias variables, calcula la correlación entre cada par de variables.
+
+### Estadística Descriptiva: correlaciones
+
+Una manera de visualizar estas correlaciones es usar la función ggpairs del paquete GGally:
+
+
+```{r}
+puntajes <- saber11_2019 %>% select(starts_with("PUNT"), ESTU_INSE_INDIVIDUAL)
+```
+
+
+```{r}
+cor(puntajes, use = "complete.obs")
+round(cor(puntajes, use = "complete.obs"), 2)
+```
+
+
+```{r, eval=FALSE}
+ggpairs(variables)
+```
+
+
+Use `ggpairs` para visualizar las correlaciones entre los puntajes.
+
+```{r}
+ggpairs(puntajes)
+```
+
+
+### Estadística Descriptiva: funciones para varias medidas o variables
+
+* *summary* crea un reporte que contiene el mínimo, el primer cuartil, la mediana, la media, el tercer cuartil y el máximo.
+
+```{r}
+summary(puntajes$PUNT_MATEMATICAS)
+summary(puntajes$PUNT_INGLES)
+```
+
+* Si el objeto que se coloca dentro de summary es un data frame, `summary` realiza  el cálculo para todas las variables.
+
+```{r}
+summary(puntajes)
+```
+
+* `stats.desc` (del paquete `pastecs`) crea un reporte más completo que `summary`, y también se puede hacer para una variable o un data frame completo. 
+
+```{r}
+# Quitar la notación científica
+options(scipen = 999)
+stat.desc(puntajes$PUNT_MATEMATICAS)
+stat.desc(puntajes)
+round(stat.desc(puntajes), 2)
+```
+
+El paquete **stargazer** produce tablas de estadísticas descriptivas que pueden ser usadas en Word o en Latex. 
+
+Por ejemplo, para hacer una tabla con las estadísticas de los puntajes:
+
+```{r}
+stargazer(as.data.frame(puntajes), type = "text", 
+          out = "tabla1.tex", 
+          title = "Tabla 1 - Estadística Descriptiva")
+```
+
+¿Qué hace el argumento flip?
+
+También se pueden cambiar los nombres de las variables:
+
+```{r}
+stargazer(as.data.frame(puntajes), type = "text", 
+          out = "tabla1.tex", 
+          title = "Tabla 1 - Estadística Descriptiva",
+          digits = 1, 
+          covariate.labels = c("Lectura", "Matemáticas", 
+                               "Ciencias Naturales", 
+                               "Sociales y Ciudadanas", 
+                               "Inglés", "Global", "Nivel socioeconómico"),
+          flip = TRUE)
+```
+
+```{r}
+stargazer(as.data.frame(head(puntajes)), type = "text", 
+          out = "tabla1.tex", 
+          title = "Tabla 1 - Estadística Descriptiva", 
+          summary = FALSE)
+```
+
+
+Si lo que se quiere es presentar las estadísticas por grupos, se podría usar la función `describeBy` del paquete `psych`. 
+
+```{r}
+puntajes <- saber11_2019 %>% select(COLE_AREA_UBICACION, starts_with("PUNT"))
+describeBy(puntajes, puntajes$COLE_AREA_UBICACION)
+
+resumen <- describeBy(puntajes, puntajes$COLE_AREA_UBICACION, mat = TRUE)
+resumen
+```
+
+
