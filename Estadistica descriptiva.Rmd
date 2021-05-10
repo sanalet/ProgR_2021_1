@@ -148,8 +148,7 @@ Como vimos antes, esto depende de si las frecuencias relativas se calculan sobre
 
 ```{r}
 conjunta <- crosstab(saber11_2019$COLE_AREA_UBICACION,
-         saber11_2019$COLE_NATURALEZA, plot = FALSE, 
-         prop.t = TRUE, prop.c = TRUE, prop.r = TRUE)
+         saber11_2019$COLE_NATURALEZA, plot = FALSE, prop.c = TRUE)
 conjunta
 ```
 
@@ -173,7 +172,16 @@ mfv(saber11_2019$PUNT_GLOBAL)
 ```{r}
 quantile(saber11_2019$PUNT_GLOBAL, na.rm = TRUE)
 ```
+```{r}
+quantile(saber11_2019$PUNT_GLOBAL, na.rm = TRUE, probs = 0.9)
+```
+```{r}
+quantile(saber11_2019$PUNT_GLOBAL, na.rm = TRUE, probs = c(0.2, 0.4, 0.6, 0.8))
+```
 
+```{r}
+quantile(saber11_2019$PUNT_GLOBAL, na.rm = TRUE, probs = seq(0.1, 0.9, 0.1))
+```
 Con todas estas funciones es necesario usar el argumento `na.rm=TRUE` para que R remueva los valores faltantes antes de hacer los cálculos, a menos que estén seguros que la variable no tiene datos faltantes.
 
 ### Estadística Descriptiva: Medidas de Dispersión
@@ -191,7 +199,6 @@ En estas funciones también es necesario usar el argumento `na.rm=TRUE`.
 range(saber11_2019$PUNT_GLOBAL, na.rm=TRUE)
 max(saber11_2019$PUNT_GLOBAL, na.rm=TRUE) - min(saber11_2019$PUNT_GLOBAL, na.rm=TRUE)
 IQR(saber11_2019$PUNT_GLOBAL, na.rm=TRUE)
-
 var(saber11_2019$PUNT_GLOBAL,na.rm=TRUE)
 sd(saber11_2019$PUNT_GLOBAL, na.rm=TRUE)
 # Coeficiente de variación
@@ -212,7 +219,7 @@ sum(is.na(saber11_2019$ESTU_INSE_INDIVIDUAL))
 ```
 
 ```{r}
-cor(saber11_2019$PUNT_GLOBAL, saber11_2019$ESTU_INSE_INDIVIDUAL, use = "complete.obs")
+cor(saber11_2019$PUNT_GLOBAL, saber11_2019$ESTU_INSE_INDIVIDUAL)
 
 cor(saber11_2019$PUNT_GLOBAL, saber11_2019$PUNT_MATEMATICAS, use = "complete.obs")
 ```
@@ -232,6 +239,7 @@ puntajes <- saber11_2019 %>% select(starts_with("PUNT"), ESTU_INSE_INDIVIDUAL)
 
 ```{r}
 cor(puntajes, use = "complete.obs")
+cor(puntajes, use = "pairwise.complete.obs")
 round(cor(puntajes, use = "complete.obs"), 2)
 ```
 

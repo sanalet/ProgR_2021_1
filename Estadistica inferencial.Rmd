@@ -212,10 +212,11 @@ Ahora convierto las variables P6020 en dummy e indico a R que los entienda como 
 
 ```{r}
 Personas <- Personas %>% mutate(mujer = recode(P6020, `1` = 0, `2` = 1))
-prop.table(table(Personas$mujer))
+prop.table(table(Personas$mujer, Personas$P6020))
 ```
 
-Enseguida, uso la función `as_survey_design()` para indicar las características del diseño muestral. `ids` indica cuál es la unidad principal de muestreo. En este caso es AREA. `weights` indica cuáles son las ponderaciones, en este caso la variable fex_c_2011. 
+Enseguida, uso la función `as_survey_design()` para indicar las características del diseño muestral. `ids` indica cuál es la unidad principal de muestreo. En este caso es AREA. `weights` indica cuáles son las ponderaciones, en este caso la variable fex_c_2011.
+ 
 
 ```{r}
 geih <- Personas %>% 

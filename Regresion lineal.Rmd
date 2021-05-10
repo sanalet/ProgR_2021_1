@@ -1,0 +1,418 @@
+---
+title: "Regresión Lineal"
+author: "Santiago Tellez Cañas"
+output: 
+  html_notebook:
+    toc: yes
+    toc_float: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+## Activar paquetes 
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(lubridate)
+library(modelsummary)
+library(ggeffects)
+library(lindia)
+
+library(broom)
+
+library(coefplot)
+library(effects)
+library(stargazer)
+library(car)
+
+options(scipen = 999)
+```
+
+```{r}
+rm(list = ls())
+```
+
+
+## Cargar datos 
+
+```{r, message = FALSE, warning = FALSE}
+saber11_2019 <- read_delim("Datos/saber11_2019.csv", delim = ";")
+```
+
+## Regresión Simple e Interpretación de Resultados
+
+La función para realizar regresiones en R es `lm()`. Por ejemplo, para realizar la regresión entre puntaje de matemáticas y puntaje global usaríamos la siguiente función:
+
+```{r}
+lm(PUNT_GLOBAL ~ PUNT_MATEMATICAS, data = saber11_2019)
+```
+
+La primera variable es la variable de resultado, explicada o dependiente y las variables ubicadas después de la virgulilla (`~`) son las variables explicativas o independientes. El argumento `data` indica cuál es la base de datos que se va a usar para estimar la regresión.
+
+Al usar la función solamente obtenemos los coeficientes de la regresión. En este caso, el intercepto o constante es 50.891. Este sería el valor del PUNT_GLOBAL si el valor del puntaje de matemáticas fuera 0. El coeficiente de la variable PUNT_MATEMATICAS es 3.85. Este coeficiente indica que si PUNT_MATEMATICAS aumenta en un punto, PUNT_GLOBAL aumentaría en 3.85 puntos.
+
+Para obtener información más detallada de la regresión como el error estándar, el estadístico t, entre otros, es necesario asignar la función `lm()` a un objeto y usar la función `summary()` sobre ese objeto para ver la información detallada:
+
+```{r}
+global_1 <- lm(PUNT_GLOBAL ~ PUNT_MATEMATICAS, data = saber11_2019)
+summary(global_1)
+```
+
+Al usar `summary()`, obtenemos información sobre los residuales, los coeficientes, el error estándar de los coeficientes, el estadístico t y el valor p para realizar la prueba de hipótesis sobre el coeficiente, el valor del $R^2$ y el $R^2$ Ajustado, y el estadístico F y el valor p asociado a ese estadístico para realizar la prueba de hipótesis sobre todos los coeficientes de la regresión.
+
+En este caso, de acuerdo con la información proveída en la tabla, podemos ver lo siguiente: 
+
+- El coeficiente de PUNT_MATEMATICAS es estadísticamente significativo a un nivel de confianza del 95% pues tiene un estadístico t (482.7) mayor al valor crítico de 1,96, y un valor p (0.0000000000000002) menor a 0,05 (el nivel de significancia).
+
+- Además, los tres asteriscos al lado del valor p indican que este coeficiente también es estadísticamente significativo a un nivel de confianza del 99.9%, pues el valor p es menor a 0,001. 
+
+- Que sea estadísticamente significativo indica que se puede rechazar la hipótesis nula de que el coeficiente es igual a 0, en favor de la hipótesis alternativa de que el coeficiente es diferente a 0.
+
+- Adicionalmente, el $R^2$ (0.8101) indica que este modelo explica el 81% de la variación en PUNT_GLOBAL. En el caso de una regresión bivariada el $R^2$ y el $R^2$ Ajustado siempre son iguales. 
+
+- El valor p asociado al estadístico F indica que el modelo es estadísticamente siginificativo a un nivel de confianza del 95% pues el menor a 0.05. 
+
+La función `confint()`muestra los intervalos de confianza para los coeficientes de la regresión. Por defecto, la función muestra los coeficientes a un nivel de confianza del 95%. 
+
+```{r}
+confint(global_1)
+```
+
+Para modificar el nivel de confianza se usa el argumento `level`, así:
+
+```{r}
+confint(global_1, level = .99)
+```
+
+En el caso de PUNT_MATEMATICAS, los intervalos a niveles de confianza del 95% y 99% confirman que el coeficiente es estadísticamente significativo (i.e. estadísticamente diferente a 0) porque ninguno de los intervalos contiene el 0. 
+
+## Regresión Múltiple e Interpretación de Resultados
+
+### Modificación de Variables
+
+Antes de agregar más variables voy a hacer dos cambios en las variables que voy a agregar. El primer cambio es crear la variable EDAD usando la variable fecha de nacimiento y unas funciones del paquete lubridate. El segundo cambio es crear la variable MUJER usando la información de la variable ESTU_GENERO. Este cambio tiene por propósito convertir ESTU_GENERO, que tiene las categorías F y M, en una variable binaria igual a 1 si la persona es mujer (F en ESTU_GENERO) y 0 si la persona es hombre (M en ESTU_GENERO). Este cambio facilitará la interpretación del coeficiente en la regresión. 
+
+```{r}
+saber11_2019 <- saber11_2019 %>% 
+  mutate(FECHA_NACIMIENTO = dmy(ESTU_FECHANACIMIENTO), 
+         EDAD = floor(interval(start = FECHA_NACIMIENTO,
+                         end = "2019-8-12") / period(num = 1, units = "years")), 
+         MUJER = factor(dplyr::recode(ESTU_GENERO, F = 1, M = 0))) %>% 
+  relocate(EDAD, FECHA_NACIMIENTO, ESTU_FECHANACIMIENTO) %>% arrange(desc(EDAD)) %>% 
+  filter(EDAD < 119)
+
+head(saber11_2019[ ,c("EDAD", "MUJER")])
+table(saber11_2019$MUJER, saber11_2019$ESTU_GENERO)
+```
+
+### Agregar más variables
+
+Para agregar más variables se usa el signo +. En la siguiente regresión se incluirá la variable EDAD:
+
+```{r}
+global_2 <- lm(PUNT_GLOBAL ~ PUNT_MATEMATICAS + EDAD, data = saber11_2019)
+summary(global_2)
+```
+
+El coeficiente de la variable PUNT_MATEMATICAS disminuyó, aunque la disminución fue mínima. De acuerdo con el estadístico t y el valor p, el coeficiente sigue siendo estadísticamente significativo. La interpretación del coeficiente es distinta debido a que ahora se incluyó una nueva variable. Ahora, el coeficiente indica que si PUNT_MATEMATICAS aumenta en un punto, **controlando o dejando constante la EDAD del estudiante**, PUNT_GLOBAL aumentaría en 3,85 puntos.
+
+El coeficiente de la variable EDAD es -0,06, lo cual indica que el aumento de la edad en un año, **controlando o dejando constante el puntaje de matemáticas del estudiante**  implica una disminución de PUNT_GLOBAL de 0,14 puntos. De acuerdo con el estadístico t  (-4,917) y el valor p  el coeficiente  es estadísticamente significativo. 
+
+El $R^2$ (0.8102) aumentó un poco como es natural cuando se agregan variables en una regresión. En este caso, debemos enfocarnos en el $R^2$ Ajustado, el cual ajusta el valor del $R^2$ para quitar el efecto del aumento natural que sucede cuando se agregan más variables. En este caso el $R^2$ Ajustado es igual, lo cual indica que este modelo explica (81.02%) de la variación en PUNT_GLOBAL. Este valor es el mismo de la anterior regresión. El modelo en su integralidad sigue siendo estadísticamente significativo por así indicarlo el valor p asociado al estadístico F.
+
+En la siguiente regresión se incluye la variable MUJER además de la variable EDAD y PUNT_MATEMATICAS:
+
+```{r}
+global_3 <- lm(PUNT_GLOBAL ~ PUNT_MATEMATICAS + EDAD + MUJER, data = saber11_2019)
+summary(global_3)
+```
+
+Al agregar la variable MUJER a la anterior regresión el coeficiente de PUNT_MATEMATICAS aumentó, aunque el aumento también fue pequeño. Este coeficiente sigue siendo estadísticamente significativo e indica que si PUNT_MATEMATICAS aumenta en un punto, **controlando o dejando constante la edad y el sexo del estudiante**, PUNT_GLOBAL aumentará en 3.88. 
+
+En el caso de una variable binaria o dummy la interpretación del coeficiente dependerá de cuál sea la categoría base. Por la manera cómo se creó la variable, y su nombre así lo sugiere, se sabe que la categoría base es hombre. Por tanto, el coeficiente indicará la diferencia en la variable dependiente de las mujeres (identificadas con 1) respecto de los hombres (identificados con 0) que es la categoría base. El coeficiente de la variable MUJER indica que, **controlando o dejando constante el puntaje de matemáticas y la edad del estudiante**, las mujeres tienen un puntaje superior a los hombres de 5.35 puntos. Este coeficiente es estadísticamente significativo pues el valor del estadístico t  es mayor a 1,96 el valor crítico aproximado para un nivel de confianza del 95%, y el valor p  es menor a 0,05, el nivel de significancia para ese mismo nivel de confianza. 
+
+**Si se quiere cambiar la categoría de referencia en una variable dummy o categórica se puede usar las funciones `relevel` o `fct_relevel` para hacer el cambio. En el primer caso la categoría de referencia es la que se indique expresamente en el argumento `ref`, y en el segundo caso, será la primera categoría.**
+
+El coeficiente de edad disminuyó y no es estadísticamente significativo, es decir que estadísticamente no lo podemos distinguir de 0.
+
+El $R^2$ aumentó nuevamente, aunque poco, por el efecto natural de agregar variables a la regresión. En este caso también debemos enfocarnos en el $R^2$ Ajustado que corrige por ese aumento natural. El $R^2$ aumentó con respecto a la regresión anterior e indica que este modelo explica un 81,28% de la variación en PUNT_GLOBAL.
+
+
+#### ¿Cómo construir variables binarias rapidamente?
+```{r, eval = FALSE}
+
+library(fastDummies)
+saber11_2019 <- dummy_cols(.data = saber11_2019, select_columns = c("FAMI_ESTRATOVIVIENDA"))
+
+saber11_2019 <- saber11_2019 %>% relocate(starts_with("FAMI_ESTRATO"))
+```
+
+
+### Símbolos clave para regresiones en R
+
+Símbolo       | Uso
+------------- | -------------
+~  | Separa la variable dependiente de las independientes.
++| Separa las variables independientes.
+: | Permite crear interacciones. Por ejemplo x*z
+-1 | Quita el intercepto. 
+I() | Permite realizar operaciones aritméticas dentro de la regresión. Por ejemplo, una transformación logarítmica o cuadrática.
+
+### Funciones útiles para la regresión
+
+Función  | Uso
+------------- | ------------------------------------------------
+summary() | Muestra los resultados del modelo estimado.
+coefficients()  | Muestra los coeficientes del modelo estimado. 
+confint()  | Muestra intervalos de confianza.
+fitted()  | Muestra los valores predecidos por la regresión.
+residuals()| Muestra los residuales. 
+anova()  | Muestra la tabla de análisis de varianza.
+vcov()  | Muestra la matriz de covarianza.
+AIC() | Muestra el criterio de información de Akaike.
+plot() | Genera gráficos de diagnóstico. 
+predict() | Usa la información de un modelo estimado para predecir valores en nuevos datos. 
+
+```{r}
+coefficients(global_3)
+head(fitted(global_3))
+head(residuals(global_3))
+anova(global_3)
+vcov(global_3)
+AIC(global_3)
+plot(global_3)
+```
+
+
+### Funciones del paquete broom
+
+Tidy convierte los datos en un tibble.
+```{r}
+resultados_glob_3 <- tidy(global_3)
+resultados_glob_3
+```
+
+Augment crea un tibble con los datos y otras estimaciones que provienen del modelo.
+
+```{r}
+datos_glob_3 <- augment(global_3)
+head(datos_glob_3)
+```
+ 
+Glance crea un tibble con estadísticos de resumen del modelo.
+ 
+```{r}
+res_glob_3 <- glance(global_3)
+res_glob_3
+```
+ 
+
+### Gráfica de coeficientes
+
+Una buena manera de interpretar los coeficientes es mediante una visualización. la función `modelplot`, del paquete `modelsummary` **que deben instalar**, provee funciones para visualizar los coeficientes. Por ejemplo, para visualizar los coeficientes de la regresión `global_3` se usaría la siguiente función:
+
+```{r}
+modelplot(global_3)
+```
+
+Para comparar los coeficientes de varios modelos:
+
+```{r}
+modelos<- list("Global 1" = global_1, "Global 2" = global_2, "Global 3" = global_3)
+modelplot(modelos)
+```
+
+### Interacciones
+
+En econometría es frecuente usar interacciones para analizar la manera cómo un efecto o una relación difiere para un subgrupo particular de una población, o para evaluar cómo el efecto de una variable está mediado por otra variable. Por ejemplo, en el caso de la regresión de PUNT_GLOBAL, podría ser interesante evaluar si el efecto de MUJER en el puntaje, está mediado por la naturaleza del colegio en el que el estudiante estudia. En este caso la interacción de interés es MUJER * PRIVADO. 
+
+Antes de estimar la regresión con la interacción, es necesario transformar la variable COLE_NATURALEZA para facilitar la interpretación de los modelo:
+
+```{r}
+saber11_2019 <- saber11_2019 %>% 
+  mutate(PRIVADO = factor(dplyr::recode(COLE_NATURALEZA, `NO OFICIAL` = 1, OFICIAL = 0)))
+```
+
+Para incluir esta interacción se usaría la siguiente función:
+
+```{r}
+global_4 <- lm(PUNT_GLOBAL ~ PUNT_MATEMATICAS + EDAD + MUJER + PRIVADO + 
+                 MUJER:PRIVADO, data = saber11_2019)
+summary(global_4)
+```
+
+De acuerdo con los resultados de esta regresión las mujeres obtienen, en promedio, 5,44 puntos más que los hombres, y los estudiantes de colegios privados obtienen 6,63 puntos más que los de colegios públicos. La interacción MUJER:PRIVADO indica que para las mujeres en colegios privados el puntaje es 0,18 puntos más alto que para los hombres en colegios privados, aunque este coeficiente no es estadísticamente significativo. 
+
+Otra manera de entender este efecto, es mediante la visualización usando las funciones contenidas en el paquete `ggeffects`, **que deben instalar**. 
+
+```{r}
+prediccion <- ggpredict(global_4, c("MUJER", "PRIVADO"))
+```
+
+
+```{r}
+ggplot(prediccion, aes(x, predicted, colour = group)) + geom_point()
+```
+ 
+Otra interacción que podría ser de interés es entre MUJER y EDAD, para analizar si la relación entre MUJER y PUNT_GLOBAL varía de acuerdo con la edad de la mujer. La siguiente función estima la regresión con esa interacción:
+
+```{r}
+global_5 <- lm(PUNT_GLOBAL ~ PUNT_MATEMATICAS + EDAD + MUJER + PRIVADO + 
+                 MUJER:EDAD, data = saber11_2019)
+summary(global_5)
+
+```
+
+El coeficiente de EDAD en este caso es de -0,07. Este coeficiente indica que el aumento de EDAD en un año implica una disminución de PUNT_GLOBAL de 0,07. No obstante, este coeficiente es diferente para las mujeres por efecto de la interacción que se incluyó en el modelo. El coeficiente de esta interacción indica que para las mujeres, el aumento de EDAD en un año implica una disminución en el puntaje de -0.01. Es decir que para las mujeres el coeficiente de EDAD es igual a -0,07 - 0,01, es decir, -0,08. En consecuencia el efecto o la asociación de la edad con PUNT_GLOBAL es ligeramente más fuerte para las mujeres que para los hombres. Nuevamente el paquete `effects` nos permite visualizar de mejor manera el efecto de esta interacción:
+
+```{r}
+prediccion <- ggpredict(global_5, c("EDAD", "MUJER"))
+```
+
+```{r}
+ggplot(prediccion, aes(x, predicted, colour = group)) + geom_line()
+```
+
+
+La gráfica anterior muestra que si bien en ambos casos el coeficiente es negativo, la relación entre EDAD y PUNT_GLOBAL es menos fuerte en el caso de las mujeres que en el de los hombres.
+
+Por último, sería interesante incluir una interacción entre dos variables cuantitativas. En este caso, vamos a incluir la interacción entre PUNT_MATEMATICAS y ESTU_INSE_INDIVIDUAL:
+
+```{r}
+global_6 <- lm(PUNT_GLOBAL ~ PUNT_MATEMATICAS + EDAD + MUJER + PRIVADO + ESTU_INSE_INDIVIDUAL +
+                 PUNT_MATEMATICAS:ESTU_INSE_INDIVIDUAL, data = saber11_2019)
+summary(global_6)
+```
+
+```{r}
+prediccion <- ggpredict(global_5, c("PUNT_MATEMATICAS", "EDAD"))
+```
+
+```{r}
+ggplot(prediccion, aes(x, predicted, colour = group)) + geom_line()
+```
+
+## Resumen de resultados de regresión
+
+```{r}
+modelsummary(modelos)
+```
+
+```{r}
+modelsummary(modelos, stars = TRUE)
+```
+```{r}
+modelsummary(modelos, stars = TRUE, vcov = "robust")
+```
+
+```{r}
+modelsummary(modelos, stars = TRUE, vcov = "robust", output = "resultados.txt")
+```
+
+
+```{r}
+modelsummary(modelos, stars = TRUE, vcov = "robust", output = "resultados.html")
+```
+
+
+## Stargazer y regresión lineal
+
+Como han visto en los libros de texto de Econometría y en publicaciones académicas y profesionales, no es común que los resultados de la regresión se presenten tabla por tabla con todos los detalles, como lo he venido presentado. En este tipo de publicaciones se acostumbra a incluir una tabla de resumen con todas las regresiones y con el detalle suficiente para saber el valor de los coeficientes, la significancia estadística de los coeficientes y las características generales del modelo como el $R^2$, el $R^2$ Ajustado, el estadístico F para el modelo en general y su valor p. 
+
+El paquete `stargazer` permite crear esas tablas con mucha facilidad. Por ejemplo, se usaría la siguiente función para crear una tabla de regresión lista para incluirla en un reporte académico o profesional. 
+
+```{r, results='asis'}
+stargazer(global_1, global_2, global_3, type = "text", out = "global.txt")
+```
+
+**Revisen el archivo adjunto que contiene los resultados de la tabla de resumen.**
+
+Pueden revisar la manera de incluir las tablas creadas con `stargazer` en RMarkdown para producir formatos Word, pdf y html en el documento *Regresiones con stargazer en RMarkdown*.  
+
+
+
+### Diagnóstico de supuestos
+
+Los 5 supuestos claves de la regresión son:
+
+1. Normalidad.
+2. Independencia.
+3. Linealidad. 
+4. Homocedasticidad.
+5. Multicolinealidad.
+
+Un método inicial para revisar estos supuesto es realizar un conjunto de gráficos que permite evaluarlos. Para esto se aplica la función `ggdiagnose` (del paquete lindia) al modelo estimado:
+
+```{r}
+gg_diagnose(global_3)
+```
+
+Exploren qué otras funciones tiene el paquete lindia.
+
+- La normalidad se evalúa en el QQplot (Gráfica superior derecha). Si los residuos tienen una distribución normal deben estar aproximadamente sobre la linea. La función `qqPlot()` del paquete `car` es otra alternativa para evaluar este supuesto.
+
+```{r}
+
+qqPlot(global_3)
+```
+
+
+- La independencia de los errores se puede evaluar haciendo una prueba de durbin watson usando la función `durbinWatsonTest()` del paquete `car`. 
+
+```{r}
+durbinWatsonTest(global_3)
+```
+Valores cercanos a 2 sugieren que no hay autocorrelación. 1.4 más allá sugeriría autocorrelación.
+
+- La linealidad se evalúa en la gráfica de residuos versus valores ajustados (fitted). En esta gráfica no debería identificarse una comportamiento sistemático que sugiera que los residuos varían según los valores ajustados. En este caso, ese supuesto pareciera cumplirse, excepto por los valores ajustados más altos. Si hay un comportamiento sistemático esto sugiere que la relación no es líneal y que debe emplearse algún polinomio en el modelo, o que hay alguna variable omitida en el modelo.
+
+- La homocedasticidad se evalúa en el gráfico Scale Location. Allí no se debería observar ningún comportamiento sistemático en la raíz cuadrada de los residuos estandarizados para los diferentes valores ajustados. En este caso esto también parece cumplirse excepto para los valores ajustados altos. Esto se puede probar formalmente con la función `ncvTest()` del paquete `car`. Para ajustar la homocedasticidad se puede usar alguna función del paquete `sandwich` para estimar errores estándar robustos. Para el caso de errores estándar robustos (la opción robust en Stata):
+
+```{r}
+ncvTest(global_3)
+```
+
+
+
+```{r}
+install.packages("sandwich")
+library(lmtest)
+library(sandwich)
+global_6 <- coeftest(global_3, vcov = vcovHC(global_3, type="HC1"))
+summary(global_3)
+global_6
+
+```
+
+Para el caso de errores estándar agrupados:
+
+```{r}
+global_7 <- coeftest(global_3, vcov = vcovHC(global_3, type="HC0", cluster = COLE_COD_MCIPIO_UBICACION))
+```
+
+Los objetos resultantes de `coeftest` también se pueden incluir en una tabla generada con `stargazer`, o se pueden incluir, como vimos en `modelsummary`. 
+
+```{r, results='asis'}
+stargazer(global_6, global_7, type = "html")
+```
+
+- El gráfico Residuals versus leverage permite identificar si hay algún dato atípico o que tenga una gran influencia en la estimación del modelo. Las observaciones identificadas en el gráfico con el número de observación corresponden a observaciones con estas características. Esto también se puede probar formalmente `outlierTest()` del paquete `car`.
+
+```{r}
+outlierTest(global_3)
+```
+Si el resultado es "No Studentized residuals with Bonferroni p < 0.05" esto indica que no hay ningún dato atípico. Si no aparece este mensaje, la o las observaciones identificadas aparecen listadas. 
+
+- La multicolinealidad se puede evaluar calculando el factor de inflación de la varianza con la función `vif()` del paquete `car`. Si la raíz cuadrada del factor de inflación de la varianza es mayor a 2, esto sugiere que hay un problema de multicolinealidad.
+
+```{r}
+vif(global_3)
+sqrt(vif(global_3))
+```
+
+
+Para ver otras herramientas que permiten verificar el cumplimiento de estos supuestos, los remito a los siguientes materiales:
+
+- Sección 8.3.2 del capítulo 8 de R in Action. Este libro muestra algunas pruebas estadísticas para validar los supuestos.  
+- https://rpubs.com/joser/RegresionSimple
+- Los capítulos correspondiente del libro de texto de Wooldridge.
