@@ -17,11 +17,7 @@ library(lubridate)
 library(modelsummary)
 library(ggeffects)
 library(lindia)
-
 library(broom)
-
-library(coefplot)
-library(effects)
 library(stargazer)
 library(car)
 
@@ -91,6 +87,13 @@ En el caso de PUNT_MATEMATICAS, los intervalos a niveles de confianza del 95% y 
 ### Modificación de Variables
 
 Antes de agregar más variables voy a hacer dos cambios en las variables que voy a agregar. El primer cambio es crear la variable EDAD usando la variable fecha de nacimiento y unas funciones del paquete lubridate. El segundo cambio es crear la variable MUJER usando la información de la variable ESTU_GENERO. Este cambio tiene por propósito convertir ESTU_GENERO, que tiene las categorías F y M, en una variable binaria igual a 1 si la persona es mujer (F en ESTU_GENERO) y 0 si la persona es hombre (M en ESTU_GENERO). Este cambio facilitará la interpretación del coeficiente en la regresión. 
+
+```{r}
+inicio <- dmy("29-02-2020")
+inicio + dyears(x = 1)
+inicio + month(x = 12)
+```
+
 
 ```{r}
 saber11_2019 <- saber11_2019 %>% 
@@ -375,7 +378,7 @@ ncvTest(global_3)
 
 
 ```{r}
-install.packages("sandwich")
+# install.packages("sandwich")
 library(lmtest)
 library(sandwich)
 global_6 <- coeftest(global_3, vcov = vcovHC(global_3, type="HC1"))

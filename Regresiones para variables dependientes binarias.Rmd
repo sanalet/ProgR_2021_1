@@ -1,0 +1,130 @@
+---
+title: "Regresión con variables dependientes binarias"
+author: "Profesor Santiago Tellez Cañas"
+output: 
+  html_notebook:
+    toc: yes
+    toc_float: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+## Activar paquetes 
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(modelsummary)
+library(ggeffects)
+options(scipen = 999)
+```
+
+```{r}
+rm(list = ls())
+```
+
+## Cargar datos 
+
+```{r, message = FALSE, warning = FALSE}
+saber11_2019 <- read_delim("Datos/saber11_2019.csv", delim = ";")
+```
+
+## Regresión con Variables Binarias Dependientes
+
+### Estimación e interpretación
+
+Para las variables binarias independientes hay 3 posibilidades de modelo:
+
+1. Modelo de Probabilidad Lineal
+2. Logit
+3. Probit
+
+En los tres casos el modelo busca estimar la relación entre las variables independientes y la probabilidad de ocurrencia del evento descrito por la variable dependiente. Los tres modelos usan métodos de estimación distintos:
+
+Modelo  | Tipo de Estimación | Distribución
+------------- | ------------- | -------------
+MPL  | MCO | No aplica.
+Logit  | Máxima Verosimilitud | Función de distribución acumulada logística estándar.
+Probit | Máxima Verosimilitud | Función de distribución acumulada normal estándar.
+
+En R la estimación se hace de la siguiente manera:
+
+Modelo  | Función | Argumento Adicional
+------------- | ------------- | -------------
+MPL  | `lm()` | No aplica.
+Logit  | `glm()` | `family=binomial(link="logit")`
+Probit | `glm()` | `family=binomial(link="probit")`
+
+Por ejemplo, si se quiere estimar la relación entre el nivel socioeconómico y la probabilidad de que el estudiante estudie en un colegio privado, controlando por el sexo del estudiante, se podría estimar cualquiera de los tres modelos. La diferencia entre los tres modelos (además de la manera como se estiman) es la manera como se interpretan los coeficientes. 
+
+El modelo de probabilidad lineal no es muy utilizado por dos desventajas: puede resultar en probabilidades estimadas inferiores a 0 o superiores a 1, y el efecto parcial de cualquier variable independiente (que esté en nivel) en la probabilidad de ocurrencia del evento descrito en la variable independiente siempre es constante. Estos dos problemas son resueltos por los modelos logit y probit. 
+
+Antes de estimar los tres modelos, es necesario transformar la variable COLE_NATURALEZA para facilitar la interpretación de los modelo:
+
+```{r}
+saber11_2019 <- saber11_2019 %>% 
+  mutate(PRIVADO = dplyr::recode(COLE_NATURALEZA, `NO OFICIAL` = 1, OFICIAL = 0), 
+         MUJER = factor(dplyr::recode(ESTU_GENERO, F = 1, M = 0)))
+```
+
+Para estimar los tres modelos, se usan las siguientes funciones:
+
+```{r}
+mpl <- lm(PRIVADO ~ ESTU_INSE_INDIVIDUAL + MUJER, data = saber11_2019)
+summary(mpl)
+logit <- glm(PRIVADO ~ ESTU_INSE_INDIVIDUAL + MUJER, data = saber11_2019,  
+             family = binomial(link = "logit"))
+summary(logit)
+probit <- glm(PRIVADO ~ ESTU_INSE_INDIVIDUAL + MUJER, data = saber11_2019,  
+             family = binomial(link = "probit"))
+summary(probit)
+```
+
+A continuación se muestran las tres regresiones en una tabla generada con `stargazer`:
+
+```{r, results='asis', warning=FALSE, message=FALSE}
+modelos <- list("MPL" = mpl, "Logit" = logit, "Probit" = probit)
+modelsummary(modelos, stars = TRUE)
+
+```
+
+
+```{r}
+modelsummary(modelos, stars = TRUE, coef_map = c("(Intercept)"="Constante", 
+                                                 "ESTU_INSE_INDIVIDUAL" = "Nivel socioeconómico", 
+                                                 "MUJER1" = "Mujer"))
+```
+Las funciones siguientes permiten ver cómo se puede modificar las etiquetas de las estadísticas publicas en la parte baja e la tabla: 
+
+```{r}
+gm <- gof_map
+gm$clean[gm$raw == "r2.adjusted"] <- "R2 Ajustado"
+gm$clean[gm$raw == "adj.r.squared"] <- "R2 Ajustado"
+gm$clean[gm$raw == "nobs"] <- "No. Observaciones"
+modelsummary(modelos, gof_map = gm, coef_map = c("(Intercept)"="Constante", 
+                                                 "ESTU_INSE_INDIVIDUAL" = "Nivel socioeconómico", "MUJER1" = "Mujer"))
+```
+
+
+La interpretación más sencilla es la del modelo de probabilidad líneal. Por tratarse de una estimación usando mínimos cuadrados ordinarios la interpretación no difiere de la que se hace en otras regresiones lineales. Por ejemplo, en el caso del coeficiente de la variable ESTU_INSE_INDIVIDUAL, que contiene un índice de nivel socioeconómico de los estudiantes, indica que si el índice aumenta en un punto la probabilidad de que el estudiante estudie en un colegio privado aumenta en 0,017, controlando o dejando constante el sexo del estudiante. Este coeficiente es estadísticamente siginificativo. Eso lo podemos concluir al hacer un calculo rápido del estadístico t, dividiendo el coeficiente entre el error estándar (ubicado entre paréntesis debajo del coeficiente). En este caso el estadístico t es igual a 17, el cual es mayor a los valores críticos correspondientes a los niveles de significancia frecuentemente usados. En el caso de las tablas producidas por `stargazer`, llegamos a una conclusión similar al revisar los asteriscos asociados al coeficiente. En este caso, el coeficiente de ESTU_INSE_INDIVIDUAL tiene tres asteriscos, lo cual indica que la variable es estadísticamente significativa a un nivel de confianza del 99% (y por tanto también lo es a los niveles de 95% y 90%), pues, de acuerdo don la leyenda en la parte inferior de la tabla, tres asteriscos indican que el valor p es menor a 0,01, el nivel de significancia para una prueba de hipótesis a un nivel de confianza del 99%. 
+
+El coeficiente de la variable MUJER indica que las mujeres tienen 0,019 menos probabilidad que los hombres de asistir a un colegio privado, controlando o dejando constante el nivel socioeconómico. 
+
+En el caso de los modelos logit y probit la interpretación se complica un poco más. Al revisar los coeficientes, dada la forma funcional con que fueron estimados, solo podemos concluir directamente cuál es la dirección del efecto de la variable dependiente en la variable independiente, y la significancia estadística de la relación. En este caso, para la variable ESTU_INSE_INDIVIDUAL podemos observar que tiene un efecto positivo en la probabilidad de estudiar en un colegio privado, y es estadísticamente significativa. En el caso de la variable MUJER también observamos que tiene un efecto negativo en la probabilidad de estudiar en un colegio privado. 
+
+Los anteriores coeficientes no nos dicen nada sobre la magnitud del efecto o relación entre las variables independientes y la probabilidad de estudiar en un colegio privado. Para tener una idea del efecto de las variables independientes en la probabilidad de estudiar en un colegio privado, se acostumbra fijar algunos valores de estas variables y estimar qué pasa con la probabilidad cuando algunos de estos valores cambian. Esto se conoce como la estimación de efectos marginales. Para entender mejor qué esta pasando, les sugiero revisar el capítulo 17 de Wooldridge, y el video en español y la página en inglés que encuentran a continuación:
+
+- https://www.youtube.com/watch?v=paiNvY0PxgE
+- https://stats.idre.ucla.edu/other/mult-pkg/faq/general/faq-how-do-i-interpret-odds-ratios-in-logistic-regression/
+
+**La mayoría de los símbolos y funciones clave que aparecen en secciones anteriores también se pueden usar para estos modelos.**
+
+### Visualización de efectos en los modelos logit
+
+Una manera de entender mejor la relación entre las variables independientes y la probabilidad de estudiar en un colegio privado es visualizando los efectos usando las funciones del paquete `effects`. En este caso la función `allEffects()` muestra las probabilidades estimadas del modelo para diferentes valores de las variables independientes.
+
+```{r}
+efectos <- ggpredict(logit, c("ESTU_INSE_INDIVIDUAL", "MUJER"))
+efectos
+plot(efectos)
+```
+
