@@ -1,10 +1,14 @@
 ---
 title: "Estadística Descriptiva"
 author: "Santiago Tellez Cañas"
-output: 
+output:
+  pdf_document:
+    toc: yes
   html_notebook:
     toc: yes
     toc_float: yes
+  word_document:
+    toc: yes
 ---
 
 # Activar paquetes
@@ -19,6 +23,7 @@ library(GGally)
 library(stargazer)
 library(psych)
 library(pastecs)
+library(modelsummary)
 ```
 
 # Limpiar espacio de trabajo
@@ -251,7 +256,7 @@ ggpairs(variables)
 
 Use `ggpairs` para visualizar las correlaciones entre los puntajes.
 
-```{r}
+```{r, eval = FALSE}
 ggpairs(puntajes)
 ```
 
@@ -324,5 +329,12 @@ describeBy(puntajes, puntajes$COLE_AREA_UBICACION)
 resumen <- describeBy(puntajes, puntajes$COLE_AREA_UBICACION, mat = TRUE)
 resumen
 ```
+
+# datasummary
+
+```{r}
+datasummary_skim(puntajes, histogram = FALSE)
+```
+
 
 

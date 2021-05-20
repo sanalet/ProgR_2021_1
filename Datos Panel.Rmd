@@ -88,6 +88,14 @@ ggplot(pib, aes(year, pib, color = country2,
 ```
 
 ```{r}
+ggplot(pib, aes(year, pib)) + 
+  geom_line() + 
+  scale_y_continuous(label = dollar) + 
+  facet_wrap(vars(country2))
+```
+
+
+```{r}
 ggplot(pib, aes(year, pib_percapita)) + 
   geom_line() + 
   scale_y_continuous(label = dollar) + 
@@ -111,7 +119,6 @@ pib_paises <- pib %>%
 ```{r}
 ggplot(pib_paises, aes(x = country2, y=media,  ymin = li, ymax = ls)) + 
   geom_point() + 
-  geom_line() + 
   geom_errorbar() + 
   scale_y_continuous(labels = dollar)
 ```
@@ -148,7 +155,7 @@ ggplot(data = pib %>% filter(between(year, 2012, 2017)),
 ```
 
 ```{r}
-ggplot(data = pib, mapping = aes(x = homicidios, y = pib_percapita, color = country2)) + 
+ggplot(data = pib, mapping = aes(x = homicidios, y = pib_percapita, color = country2, alpha = year)) + 
   geom_point()
 ```
 
@@ -158,8 +165,6 @@ ggplot(data = pib, mapping = aes(x = homicidios, y = pib_percapita, color = coun
 ```{r}
 mco <- lm(pib_percapita ~ homicidios, data = pib)
 summary(mco)
-
-
 ```
 
 Efectos fijos de país:
@@ -181,6 +186,9 @@ ggplot(resultados, aes(x = homicidios, y = .fitted, color = country2,
   geom_smooth(method = "lm") +
   geom_abline(slope = -480.3, intercept = 31759.24, color = "Red")
 ```
+```{r}
+pib %>% filter(country == "Colombia") %>% arrange(desc(homicidios))
+```
 
 
 Efectos fijos de año:
@@ -194,7 +202,7 @@ Efectos fijos de dos vías:
 
 ```{r}
 ef_dos_vias <- lm(pib_percapita ~ homicidios + factor(year) + country2, data = pib)
-summary(ef_ano)
+summary(ef_dos_vias)
 ```
 
 
